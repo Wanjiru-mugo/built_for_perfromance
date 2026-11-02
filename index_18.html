@@ -1,0 +1,920 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BFP Finance</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='-0.5 -0.5 6 6'%3E%3Crect x='-0.5' y='-0.5' width='6' height='6' rx='1' fill='%23322E2E'/%3E%3Cg fill='%239AC634'%3E%3Cpolygon points='0,2 1,1 1,5 0,5'/%3E%3Cpolygon points='1,1 2,0 4,0 4,1'/%3E%3Crect x='4' y='1' width='1' height='2'/%3E%3Cpolygon points='1.15,4 2,3 4,3 4,4'/%3E%3C/g%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter+Tight:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --cream:#FCFBF5; --bistre:#322E2E; --green:#9AC634; --green-ink:#5B7F17;
+    --paper:#FFFFFF; --line:#E7E4D9; --line-strong:#D3CFC2;
+    --ink:#322E2E; --ink-2:#6B6560; --ink-3:#9A948C;
+    --c-production:#6E9A1E; --c-kit:#1F78A8; --c-hospitality:#C9703A; --c-other:#8A5AA6;
+    --warn:#B5610F; --crit:#B3261E; --good:#3E7D1E;
+    --radius:14px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{background:var(--cream)}
+  body{background:var(--cream);color:var(--ink);font-family:'Inter Tight',system-ui,sans-serif;font-size:15px;line-height:1.5;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:1180px;margin:0 auto;padding:0 24px}
+  .anton{font-family:'Anton',Impact,sans-serif;font-weight:400;letter-spacing:.2px}
+  .label{font-size:12px;font-weight:600;letter-spacing:1.4px;text-transform:uppercase;color:var(--ink-2)}
+  .num{font-variant-numeric:tabular-nums}
+
+  /* HERO */
+  header.hero{background:var(--bistre);color:var(--cream);position:relative;overflow:hidden}
+  header.hero::after{content:"";position:absolute;inset:0;opacity:.07;pointer-events:none;
+    background-image:linear-gradient(135deg,var(--cream) 25%,transparent 25%),linear-gradient(135deg,transparent 75%,var(--cream) 75%);
+    background-size:44px 44px}
+  .hero-in{position:relative;z-index:1;padding:28px 24px 40px}
+  .brandrow{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap}
+  .lockup{display:flex;align-items:center;gap:12px;text-decoration:none;color:var(--cream)}
+  .lockup svg{width:34px;height:34px}
+  .lockup span{font-family:'Anton',sans-serif;font-size:15px;line-height:1.05;text-transform:uppercase;letter-spacing:.3px}
+  .hero h1{font-family:'Anton',sans-serif;font-weight:400;font-size:clamp(44px,8vw,92px);line-height:.95;margin-top:44px}
+  .hero h1 .br{color:var(--green)}
+  .hero p.sub{color:#CFCabe;max-width:620px;margin-top:14px;font-size:16px}
+  .hero-meta{display:flex;gap:10px;flex-wrap:wrap;margin-top:22px}
+  .chip{display:inline-flex;align-items:center;gap:8px;border:1px solid rgba(252,251,245,.18);border-radius:999px;padding:6px 12px;font-size:13px;color:#E8E5DA}
+  .chip .dot{width:7px;height:7px;border-radius:50%;background:var(--green)}
+  .btn{appearance:none;border:1px solid var(--line-strong);background:var(--paper);color:var(--ink);font:600 14px 'Inter Tight',sans-serif;padding:9px 16px;border-radius:10px;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;gap:8px;white-space:nowrap}
+  .btn:hover{border-color:var(--ink)}
+  .btn.primary{background:var(--green);border-color:var(--green);color:var(--bistre)}
+  .btn.primary:hover{background:#8BB52C}
+  .btn.ghost-dark{background:transparent;color:var(--cream);border-color:rgba(252,251,245,.3)}
+  .btn.ghost-dark:hover{border-color:var(--cream)}
+  .actions{display:flex;gap:8px;flex-wrap:wrap}
+
+  section{margin-top:44px}
+  .sec-head{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;margin-bottom:16px;flex-wrap:wrap}
+  .sec-head h2{font-size:22px;font-weight:700;letter-spacing:-.2px}
+  .sec-head h2 .bk{color:var(--green-ink);font-weight:600}
+  .sec-head p{color:var(--ink-2);font-size:14px}
+  .card{background:var(--paper);border:1px solid var(--line);border-radius:var(--radius);padding:22px}
+
+  /* KPIs */
+  .kpis{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-top:-28px;position:relative;z-index:2}
+  .kpi{background:var(--paper);border:1px solid var(--line);border-radius:var(--radius);padding:18px 18px 16px}
+  .kpi .v{font-family:'Anton',sans-serif;font-size:38px;line-height:1.05;margin-top:8px}
+  .kpi .d{font-size:13px;color:var(--ink-2);margin-top:4px}
+  .kpi.accent{background:var(--bistre);color:var(--cream);border-color:var(--bistre)}
+  .kpi.accent .label{color:#BDB8AC}.kpi.accent .d{color:#BDB8AC}
+  .kpi.accent .v{color:var(--green)}
+  .kpi .pending{display:inline-block;font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;background:#F6EBDD;color:#8A4A12;border-radius:6px;padding:2px 7px;margin-top:6px}
+
+  /* Grid layouts */
+  .g2{display:grid;grid-template-columns:1.6fr 1fr;gap:16px}
+  .g2b{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+
+  /* Legend */
+  .legend{display:flex;gap:16px;flex-wrap:wrap;font-size:13px;color:var(--ink-2);margin-bottom:10px}
+  .legend i{display:inline-block;width:12px;height:12px;border-radius:3px;margin-right:6px;vertical-align:-1px}
+
+  /* Chart */
+  .chart{position:relative}
+  .chart svg{display:block;width:100%;height:auto;overflow:visible}
+  .chart .axis text{font:12px 'Inter Tight',sans-serif;fill:var(--ink-3)}
+  .chart .grid line{stroke:var(--line);stroke-width:1}
+  .chart .lbl{font:600 12px 'Inter Tight',sans-serif;fill:var(--ink)}
+  .chart .xl{font:600 12px 'Inter Tight',sans-serif;fill:var(--ink)}
+  .chart .xs{font:11px 'Inter Tight',sans-serif;fill:var(--ink-3)}
+  .chart .hit{fill:transparent;cursor:pointer}
+  .chart .hit:hover{fill:rgba(50,46,46,.05)}
+  .tip{position:absolute;pointer-events:none;background:var(--bistre);color:var(--cream);border-radius:10px;padding:10px 12px;font-size:13px;min-width:180px;box-shadow:0 8px 24px rgba(0,0,0,.18);opacity:0;transition:opacity .12s;z-index:5}
+  .tip b{font-family:'Anton',sans-serif;font-weight:400;font-size:18px;display:block;margin-bottom:2px}
+  .tip .r{display:flex;justify-content:space-between;gap:14px;color:#D8D4C8}
+  .tip i{display:inline-block;width:9px;height:9px;border-radius:2px;margin-right:6px}
+
+  /* Category bars */
+  .catrow{display:grid;grid-template-columns:130px 1fr 74px;gap:12px;align-items:center;padding:10px 0;border-bottom:1px solid var(--line)}
+  .catrow:last-child{border-bottom:0}
+  .catrow .n{font-weight:600;font-size:14px}
+  .catrow .track{height:14px;background:#F3F1E9;border-radius:4px;overflow:hidden}
+  .catrow .fill{height:100%;border-radius:0 4px 4px 0}
+  .catrow .amt{text-align:right;font-weight:600}
+  .catrow .empty{font-size:12px;color:var(--ink-3)}
+
+  /* Matrix */
+  .matrix{width:100%;border-collapse:separate;border-spacing:0;font-size:14px}
+  .matrix th{font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--ink-2);text-align:center;padding:8px 6px;border-bottom:1px solid var(--line-strong);white-space:nowrap}
+  .matrix th:first-child,.matrix td:first-child{text-align:left}
+  .matrix td{padding:11px 6px;border-bottom:1px solid var(--line);text-align:center;white-space:nowrap}
+  .matrix td.g{font-weight:600}
+  .tick{display:inline-block;width:18px;height:18px;border-radius:5px;background:var(--green);position:relative}
+  .tick::after{content:"";position:absolute;left:6px;top:3px;width:5px;height:9px;border:solid var(--bistre);border-width:0 2px 2px 0;transform:rotate(45deg)}
+  .nil{display:inline-block;width:18px;height:2px;background:var(--line-strong);vertical-align:middle}
+  .q{display:inline-block;font-size:11px;font-weight:700;color:#8A4A12;background:#F6EBDD;border-radius:5px;padding:1px 6px}
+
+  /* Bookings */
+  .bookgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px}
+  .book{background:var(--paper);border:1px solid var(--line);border-radius:var(--radius);padding:18px;display:grid;grid-template-columns:64px 1fr;gap:16px}
+  .book .dt{background:var(--bistre);color:var(--cream);border-radius:12px;text-align:center;padding:8px 0;height:max-content}
+  .book .dt .d{font-family:'Anton',sans-serif;font-size:30px;line-height:1;color:var(--green)}
+  .book .dt .mo{font-size:11px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase}
+  .book .dt .in{font-size:10.5px;color:#BDB8AC;margin-top:2px}
+  .book .gn{font-family:'Anton',sans-serif;font-size:24px;line-height:1.05}
+  .book .kv{display:grid;grid-template-columns:96px 1fr;gap:3px 10px;font-size:13px;margin-top:10px}
+  .book .kv span:nth-child(odd){color:var(--ink-3);font-size:12px;text-transform:uppercase;letter-spacing:.8px;font-weight:600;padding-top:1px}
+  .book .nt{font-size:12.5px;color:var(--ink-2);margin-top:8px;padding-top:8px;border-top:1px solid var(--line)}
+  .book .ba{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
+  .book .ba .btn{padding:7px 12px;font-size:13px}
+  .bs{font-size:11px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;padding:3px 8px;border-radius:6px;margin-left:8px;vertical-align:4px}
+  .bs.Confirmed{background:#E6F0D8;color:var(--good)} .bs.Provisional{background:#F6EBDD;color:#8A4A12} .bs.Cancelled{background:#EEECE6;color:var(--ink-3)}
+  .bempty{background:var(--paper);border:1px dashed var(--line-strong);border-radius:var(--radius);padding:28px;text-align:center;color:var(--ink-2)}
+  .bpast{margin-top:14px;font-size:13px;color:var(--ink-2)}
+  .bpast summary{cursor:pointer;font-weight:600;color:var(--ink)}
+  .bpast li{list-style:none;padding:8px 0;border-bottom:1px solid var(--line)}
+  .hospbar{height:6px;background:#F3F1E9;border-radius:3px;overflow:hidden;margin-top:4px}
+  .hospbar i{display:block;height:100%;background:var(--c-hospitality)}
+
+  /* Editing board */
+  .edboard{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+  .edcol{background:var(--paper);border:1px solid var(--line);border-radius:var(--radius);padding:18px;display:flex;flex-direction:column;gap:10px}
+  .edcol .hd{display:flex;justify-content:space-between;align-items:baseline;border-bottom:1px solid var(--line);padding-bottom:10px}
+  .edcol .hd .c{font-family:'Anton',sans-serif;font-size:30px;line-height:1}
+  .edcol .hd .k{display:flex;align-items:center;gap:8px;font-weight:700;font-size:14px}
+  .edcol .hd .k i{width:10px;height:10px;border-radius:3px}
+  .edcol.paid .hd .k i{background:var(--good)} .edcol.pend .hd .k i{background:var(--warn)} .edcol.none .hd .k i{background:var(--ink-3)}
+  .edcol.pend{border-color:#EFDFC8;background:#FFFCF7}
+  .eg{display:flex;justify-content:space-between;gap:10px;align-items:baseline}
+  .eg b{font-size:15px}.eg span{font-size:12.5px;color:var(--ink-3);white-space:nowrap}
+  .eg + .en{font-size:12.5px;color:var(--ink-2);margin-top:-6px}
+  .edq{font-size:13px;color:var(--ink-2);margin-top:12px}
+  @media (max-width:820px){.edboard{grid-template-columns:1fr}}
+
+  /* Invoice library */
+  .invgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px}
+  .inv{background:var(--paper);border:1px solid var(--line);border-radius:var(--radius);padding:16px;display:grid;grid-template-columns:40px 1fr;gap:12px;align-items:start}
+  .inv .doc{width:40px;height:48px;border-radius:6px;background:var(--bistre);position:relative;display:flex;align-items:flex-end;justify-content:center;padding-bottom:6px;font:700 10px 'Inter Tight',sans-serif;color:var(--green);letter-spacing:.5px}
+  .inv .doc::before{content:"";position:absolute;top:0;right:0;border-style:solid;border-width:0 12px 12px 0;border-color:transparent var(--cream) #5a5454 transparent}
+  .inv.missing .doc{background:#E4E1D7;color:var(--ink-3)}
+  .inv .g{font-weight:700;font-size:15px}
+  .inv .m{font-size:12.5px;color:var(--ink-2)}
+  .inv .a{display:flex;justify-content:space-between;align-items:center;margin-top:10px;gap:8px}
+  .dl{display:inline-flex;align-items:center;gap:6px;font:600 13px 'Inter Tight',sans-serif;color:var(--bistre);background:var(--green);border-radius:8px;padding:6px 11px;text-decoration:none}
+  .dl:hover{background:#8BB52C}
+  .dl.off{background:#F1EFE6;color:var(--ink-3);pointer-events:none}
+  .dl svg{width:14px;height:14px}
+  .inlink{display:inline-flex;align-items:center;gap:4px;font-size:12px;font-weight:600;color:var(--green-ink);text-decoration:none;margin-top:3px}
+  .inlink:hover{text-decoration:underline}
+  .inlink.off{color:var(--ink-3);font-weight:500;pointer-events:none}
+
+  /* Flags */
+  .flags{display:flex;flex-direction:column;gap:10px}
+  .flag{display:grid;grid-template-columns:26px 1fr;gap:10px;align-items:start;padding:12px 14px;border-radius:12px;background:#FBF6EE;border:1px solid #EFDFC8}
+  .flag.crit{background:#FBEFEE;border-color:#F0D2CF}
+  .flag.info{background:#F4F3EE;border-color:var(--line)}
+  .flag .ic{width:22px;height:22px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:13px;color:#fff;background:var(--warn)}
+  .flag.crit .ic{background:var(--crit)}
+  .flag.info .ic{background:var(--ink-2)}
+  .flag .t{font-weight:600;font-size:14px}
+  .flag .s{font-size:13px;color:var(--ink-2)}
+
+  /* Ledger */
+  .toolbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:14px}
+  .seg{display:inline-flex;background:#F1EFE6;border-radius:10px;padding:3px;gap:2px;flex-wrap:wrap}
+  .seg button{border:0;background:transparent;font:600 13px 'Inter Tight',sans-serif;color:var(--ink-2);padding:7px 12px;border-radius:8px;cursor:pointer}
+  .seg button.on{background:var(--paper);color:var(--ink);box-shadow:0 1px 2px rgba(0,0,0,.08)}
+  .search{flex:1;min-width:180px;border:1px solid var(--line-strong);border-radius:10px;padding:9px 12px;font:14px 'Inter Tight',sans-serif;background:var(--paper);color:var(--ink)}
+  .tablewrap{overflow-x:auto}
+  table.ledger{width:100%;border-collapse:collapse;font-size:14px;min-width:760px}
+  .ledger th{text-align:left;font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--ink-2);padding:10px 10px;border-bottom:1px solid var(--line-strong);cursor:pointer;user-select:none;white-space:nowrap}
+  .ledger td{padding:12px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+  .ledger td.r,.ledger th.r{text-align:right}
+  .ledger .items{color:var(--ink-2);font-size:13px}
+  .pill{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:600;padding:3px 9px;border-radius:999px;background:#F1EFE6;white-space:nowrap}
+  .pill i{width:8px;height:8px;border-radius:2px}
+  .st{font-size:12px;font-weight:700;padding:3px 8px;border-radius:6px;white-space:nowrap}
+  .st.Paid{background:#E6F0D8;color:var(--good)}
+  .st.Invoiced{background:#F1EFE6;color:var(--ink-2)}
+  .st.Unpaid{background:#FBEFEE;color:var(--crit)}
+  .st.Draft{background:#E3EEF6;color:#1F5F86}
+  .ledger tfoot td{font-weight:700;border-bottom:0;padding-top:14px}
+  .rowx{border:0;background:none;color:var(--ink-3);cursor:pointer;font-size:12px;text-decoration:underline}
+
+  /* Form */
+  dialog{border:0;border-radius:18px;padding:0;max-width:640px;width:calc(100% - 32px);background:var(--cream);color:var(--ink);box-shadow:0 30px 80px rgba(0,0,0,.35)}
+  dialog::backdrop{background:rgba(50,46,46,.55)}
+  .dlg-h{background:var(--bistre);color:var(--cream);padding:20px 24px}
+  .dlg-h h3{font-family:'Anton',sans-serif;font-weight:400;font-size:30px;line-height:1}
+  .dlg-h p{color:#CFCABE;font-size:13px;margin-top:6px}
+  form.entry{padding:20px 24px 24px;display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  form.entry .full{grid-column:1/-1}
+  form.entry label{display:flex;flex-direction:column;gap:6px;font-size:12px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--ink-2)}
+  form.entry input,form.entry select,form.entry textarea{font:15px 'Inter Tight',sans-serif;color:var(--ink);background:var(--paper);border:1px solid var(--line-strong);border-radius:10px;padding:10px 12px;text-transform:none;letter-spacing:0;font-weight:400}
+  form.entry input:focus,form.entry select:focus,form.entry textarea:focus{outline:2px solid var(--green);outline-offset:1px;border-color:var(--green)}
+  .checks{display:flex;flex-wrap:wrap;gap:8px}
+  .checks label{flex-direction:row;align-items:center;gap:6px;background:var(--paper);border:1px solid var(--line-strong);border-radius:8px;padding:6px 10px;font-size:13px;text-transform:none;letter-spacing:0;font-weight:500;color:var(--ink);cursor:pointer}
+  .form-actions{grid-column:1/-1;display:flex;justify-content:flex-end;gap:8px;margin-top:4px}
+
+  .banner{display:none;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;background:#E3EEF6;border:1px solid #C6DCEB;color:#1F4F70;border-radius:12px;padding:12px 16px;margin-top:20px;font-size:14px}
+  .banner.show{display:flex}
+
+  .howto ol{padding-left:20px;display:flex;flex-direction:column;gap:8px;color:var(--ink-2);font-size:14px}
+  .howto b{color:var(--ink)}
+  code{font-family:ui-monospace,Menlo,monospace;font-size:12.5px;background:#F1EFE6;border-radius:5px;padding:1px 5px}
+
+  footer{margin:56px 0 0;background:var(--bistre);color:#BDB8AC;font-size:13px}
+  footer .wrap{padding-top:22px;padding-bottom:22px;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
+
+  @media (max-width:980px){
+    .kpis{grid-template-columns:repeat(2,1fr)}
+    .kpis .kpi:first-child{grid-column:1/-1}
+    .g2,.g2b{grid-template-columns:1fr}
+  }
+  @media (max-width:560px){
+    .wrap{padding:0 16px}.hero-in{padding:22px 16px 36px}
+    form.entry{grid-template-columns:1fr}
+    .catrow{grid-template-columns:100px 1fr 64px}
+    .card{padding:16px}
+  }
+  @media print{ .actions,.toolbar,.banner,.btn{display:none!important} }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="wrap hero-in">
+    <div class="brandrow">
+      <a class="lockup" href="#">
+        <svg viewBox="0 0 5 5" aria-hidden="true"><g fill="#9AC634"><polygon points="0,2 1,1 1,5 0,5"/><polygon points="1,1 2,0 4,0 4,1"/><rect x="4" y="1" width="1" height="2"/><polygon points="1.15,4 2,3 4,3 4,4"/></g></svg>
+        <span>Built for<br>performance</span>
+      </a>
+      <div class="actions">
+        <button class="btn primary" id="addBookBtn">+ Add booking</button>
+        <button class="btn primary" id="addHospBtn">+ Hospitality</button>
+        <button class="btn ghost-dark" id="addBtn">+ Other spend</button>
+        <button class="btn ghost-dark" id="exportBtn">Export data.json</button>
+        <a class="btn ghost-dark" id="ghBtn" target="_blank" rel="noopener">Edit on GitHub</a>
+      </div>
+    </div>
+    <h1><span class="br">[</span> Podcast finance <span class="br">]</span></h1>
+    <p class="sub">Every pound behind every episode: studio time, editing, kit and guest hospitality, in one place.</p>
+    <div class="hero-meta">
+      <span class="chip"><span class="dot"></span><span id="metaRange">Loading</span></span>
+      <span class="chip">GBP</span>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+  <div class="kpis" id="kpis"></div>
+
+  <div class="banner" id="draftBanner">
+    <span id="draftText"></span>
+    <span class="actions">
+      <button class="btn" id="exportBtn2">Export data.json</button>
+      <button class="btn" id="clearDrafts">Discard local entries</button>
+    </span>
+  </div>
+
+  <section>
+    <div class="sec-head">
+      <div><h2><span class="bk">[</span> Upcoming bookings <span class="bk">]</span></h2>
+      <p>Studio sessions coming up, with the hospitality plan and budget for each guest.</p></div>
+      <div class="actions"><button class="btn" id="addBookBtn2">+ Add booking</button></div>
+    </div>
+    <div class="bookgrid" id="bookgrid"></div>
+    <details class="bpast" id="bpast"></details>
+  </section>
+
+  <section>
+    <div class="sec-head">
+      <div><h2><span class="bk">[</span> Cost per recording <span class="bk">]</span></h2>
+      <p>Each bar is one recording. Hospitality stacks on top once it's logged.</p></div>
+    </div>
+    <div class="g2">
+      <div class="card">
+        <div class="legend" id="legend1"></div>
+        <div class="chart" id="perEp"><div class="tip"></div></div>
+      </div>
+      <div class="card">
+        <div class="label" style="margin-bottom:6px">Where the money goes</div>
+        <div id="cats"></div>
+        <div style="margin-top:18px" class="label">By month</div>
+        <div class="chart" id="monthly" style="margin-top:8px"><div class="tip"></div></div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head">
+      <div><h2><span class="bk">[</span> What each session included <span class="bk">]</span></h2>
+      <p>Studio invoices are bundled, so this shows the add-ons per recording rather than a price split.</p></div>
+    </div>
+    <div class="card tablewrap"><table class="matrix" id="matrix"></table></div>
+  </section>
+
+  <section>
+    <div class="sec-head">
+      <div><h2><span class="bk">[</span> Advanced editing <span class="bk">]</span></h2>
+      <p>Which recordings have had advanced editing paid for, and which are still outstanding.</p></div>
+    </div>
+    <div class="edboard" id="edboard"></div>
+    <p class="edq" id="edq"></p>
+  </section>
+
+  <section>
+    <div class="sec-head">
+      <div><h2><span class="bk">[</span> Invoices <span class="bk">]</span></h2>
+      <p>Download the original PDF for any line of spend.</p></div>
+      <div class="m" id="invCount" style="font-size:13px;color:var(--ink-2)"></div>
+    </div>
+    <div class="invgrid" id="invgrid"></div>
+  </section>
+
+  <section>
+    <div class="sec-head">
+      <div><h2><span class="bk">[</span> Checks <span class="bk">]</span></h2>
+      <p>Flagged automatically from the data every time the page loads.</p></div>
+    </div>
+    <div class="flags" id="flags"></div>
+  </section>
+
+  <section>
+    <div class="sec-head">
+      <div><h2><span class="bk">[</span> Ledger <span class="bk">]</span></h2>
+      <p>Every line of spend. Click a column header to sort.</p></div>
+    </div>
+    <div class="card">
+      <div class="toolbar">
+        <div class="seg" id="catFilter"></div>
+        <input class="search" id="search" type="search" placeholder="Search guest, supplier, ref or item">
+      </div>
+      <div class="tablewrap"><table class="ledger" id="ledger"></table></div>
+    </div>
+  </section>
+
+  <section class="howto">
+    <div class="sec-head"><div><h2><span class="bk">[</span> Updating this page <span class="bk">]</span></h2></div></div>
+    <div class="g2b">
+      <div class="card">
+        <div class="label" style="margin-bottom:10px">Option A: key it in here</div>
+        <ol>
+          <li>Click <b>+ Add booking</b>, <b>+ Hospitality</b> or <b>+ Other spend</b> and fill the form. It shows on this page straight away, saved in your browser only.</li>
+          <li>Click <b>Export data.json</b>. A file downloads with old and new entries merged.</li>
+          <li>Click <b>Edit on GitHub</b>, then <b>Add file &rsaquo; Upload files</b>, drop the new <code>data.json</code> in and commit. Everyone sees it within a minute or two.</li>
+        </ol>
+      </div>
+      <div class="card">
+        <div class="label" style="margin-bottom:10px">Option B: edit the data file directly</div>
+        <ol>
+          <li>Open <code>data.json</code> on GitHub and click the pencil icon.</li>
+          <li>Copy an existing entry block, paste it below, change the values. Category must be one of: <b>Production</b>, <b>Kit &amp; accessories</b>, <b>Hospitality</b>, <b>Other</b>.</li>
+          <li>Commit. The page rebuilds itself; charts and checks update automatically.</li>
+          <li><b>Invoices:</b> open the <code>invoices</code> folder on GitHub, <b>Add file &rsaquo; Upload files</b>, and name each PDF to match its entry, e.g. <code>2026-10-30-natalie.pdf</code>. The Download button switches on automatically.</li>
+        </ol>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer><div class="wrap"><span>Built for Performance &middot; Vidos Solutions</span><span>Source: Notion invoices + manual entries</span></div></footer>
+
+<dialog id="bdlg">
+  <div class="dlg-h"><h3 id="bdlgTitle">Add booking</h3><p>Upcoming studio sessions and the hospitality plan for each guest.</p></div>
+  <form class="entry" id="bookForm" method="dialog">
+    <label>Recording date<input type="date" name="date" required></label>
+    <label>Guest<input name="guest" list="guestList" placeholder="e.g. Asha" required></label>
+    <label>Status<select name="status"><option>Confirmed</option><option>Provisional</option><option>Cancelled</option></select></label>
+    <label>Est. studio cost (£)<input type="number" name="studioCost" min="0" step="0.01"></label>
+    <label class="full">Studio package<input name="package" placeholder="e.g. 1.5h hire + engineer, additional camera, 4K"></label>
+    <label>Invoice ref<input name="ref" placeholder="Optional"></label>
+    <label>Hospitality budget (£)<input type="number" name="hospitalityBudget" min="0" step="0.01"></label>
+    <label class="full">Hospitality plan<input name="hospitalityPlan" placeholder="e.g. Lunch with Peter before recording, car home"></label>
+    <label class="full">Notes<textarea name="notes" rows="2" placeholder="e.g. Replaced a cancelled slot"></textarea></label>
+    <div class="form-actions">
+      <button class="btn" value="cancel" formnovalidate>Cancel</button>
+      <button class="btn primary" value="save">Save booking</button>
+    </div>
+  </form>
+</dialog>
+
+<dialog id="dlg">
+  <div class="dlg-h"><h3 id="dlgTitle">Add spend</h3><p>Saved in this browser until you export and upload data.json.</p></div>
+  <form class="entry" id="entryForm" method="dialog">
+    <label>Date<input type="date" name="date" required></label>
+    <label>Amount (£)<input type="number" name="amount" min="0" step="0.01" required></label>
+    <label>Guest / episode<input name="guest" list="guestList" placeholder="e.g. Natalie" required></label>
+    <label>Category
+      <select name="category" required>
+        <option>Hospitality</option><option>Production</option><option>Kit &amp; accessories</option><option>Other</option>
+      </select>
+    </label>
+    <label>Supplier<input name="supplier" placeholder="e.g. Restaurant name, studio"></label>
+    <label>Invoice / receipt ref<input name="ref" placeholder="Optional"></label>
+    <label class="full">Invoice file in repo<input name="invoice" placeholder="invoices/2026-10-30-natalie-lunch.pdf"></label>
+    <div class="full"><div class="label" style="margin-bottom:6px">What it covered</div>
+      <div class="checks" id="itemChecks"></div>
+    </div>
+    <label>Hours (studio only)<input type="number" name="hours" min="0" step="0.25"></label>
+    <label>Advanced editing<select name="editing"><option value="">Not applicable</option><option>Paid</option><option>Pending</option><option>Not invoiced</option><option>Not needed</option></select></label>
+    <label>Status<select name="status"><option>Paid</option><option>Invoiced</option><option>Unpaid</option></select></label>
+    <label class="full">Notes<textarea name="notes" rows="2" placeholder="e.g. Lunch with guest before recording, paid by Peter"></textarea></label>
+    <div class="form-actions">
+      <button class="btn" value="cancel" formnovalidate>Cancel</button>
+      <button class="btn primary" value="save" id="saveBtn">Save entry</button>
+    </div>
+  </form>
+  <datalist id="guestList"></datalist>
+</dialog>
+
+<script id="fallback" type="application/json">{
+  "meta": {
+    "title": "BFP podcast finance",
+    "currency": "GBP",
+    "github": {
+      "owner": "YOUR-GITHUB-USERNAME",
+      "repo": "bfp-finance",
+      "branch": "main"
+    },
+    "categories": [
+      "Production",
+      "Kit & accessories",
+      "Hospitality",
+      "Other"
+    ],
+    "knownIssues": [
+      "Missing invoice: advanced editing for the 15 May 2026 recording with Raynee.",
+      "Hospitality spend not yet logged for any recording."
+    ],
+    "editingStatuses": [
+      "Paid",
+      "Pending",
+      "Not invoiced",
+      "Not needed"
+    ],
+    "invoiceFolder": "invoices",
+    "bookingStatuses": [
+      "Provisional",
+      "Confirmed",
+      "Cancelled"
+    ]
+  },
+  "entries": [
+    {
+      "id": "e1",
+      "date": "2026-03-02",
+      "guest": "Micah",
+      "category": "Production",
+      "supplier": "Recording studio",
+      "ref": "INV-B8438A47",
+      "hours": 2,
+      "items": [
+        "Studio hire + engineer",
+        "Advanced editing",
+        "Social media snippets"
+      ],
+      "amount": 492,
+      "status": "Paid",
+      "payments": [
+        {
+          "date": "2026-02-16",
+          "amount": 180
+        },
+        {
+          "date": "2026-03-20",
+          "amount": 312
+        }
+      ],
+      "notes": "Paid in two instalments.",
+      "editing": "Paid",
+      "editingNote": "Included in INV-B8438A47 (£492), paid in two instalments.",
+      "invoice": "invoices/2026-03-02-micah.pdf"
+    },
+    {
+      "id": "e2",
+      "date": "2026-05-15",
+      "guest": "Raynee",
+      "category": "Production",
+      "supplier": "Recording studio",
+      "ref": "INV-2026-6653",
+      "hours": 1.5,
+      "items": [
+        "Studio hire + engineer",
+        "Additional camera",
+        "4K footage"
+      ],
+      "amount": 180,
+      "status": "Invoiced",
+      "payments": [],
+      "notes": "Advanced editing invoice for this recording is missing.",
+      "editing": "Pending",
+      "editingNote": "Editing done but the invoice is missing from Notion.",
+      "invoice": "invoices/2026-05-15-raynee.pdf"
+    },
+    {
+      "id": "e3",
+      "date": "2026-08-20",
+      "guest": "Reece",
+      "category": "Production",
+      "supplier": "Recording studio",
+      "ref": "INV-8F53A0D3",
+      "hours": 2,
+      "items": [
+        "Studio hire + engineer",
+        "Additional camera",
+        "Advanced editing",
+        "4K footage",
+        "Teleprompter"
+      ],
+      "amount": 516,
+      "status": "Paid",
+      "payments": [
+        {
+          "date": "2026-07-24",
+          "amount": 288
+        },
+        {
+          "date": "2026-08-20",
+          "amount": 228
+        }
+      ],
+      "notes": "Paid in two instalments.",
+      "editing": "Paid",
+      "editingNote": "Included in INV-8F53A0D3 (£516), paid in two instalments.",
+      "invoice": "invoices/2026-08-20-reece.pdf"
+    },
+    {
+      "id": "e5",
+      "date": "2026-10-22",
+      "guest": "Paul",
+      "category": "Production",
+      "supplier": "Recording studio",
+      "ref": "INV-0F441BB6",
+      "hours": 1.5,
+      "items": [
+        "Studio hire + engineer",
+        "Additional camera",
+        "4K footage"
+      ],
+      "amount": 216,
+      "status": "Invoiced",
+      "payments": [],
+      "notes": "",
+      "editing": "Not invoiced",
+      "editingNote": "",
+      "invoice": "invoices/2026-10-22-paul.pdf"
+    },
+    {
+      "id": "e6",
+      "date": "2026-10-30",
+      "guest": "Natalie",
+      "category": "Production",
+      "supplier": "Recording studio",
+      "ref": "INV-1B82E605",
+      "hours": 1.5,
+      "items": [
+        "Studio hire + engineer",
+        "Additional camera",
+        "4K footage"
+      ],
+      "amount": 216,
+      "status": "Invoiced",
+      "payments": [],
+      "notes": "",
+      "editing": "Not invoiced",
+      "editingNote": "",
+      "invoice": "invoices/2026-10-30-natalie.pdf"
+    },
+    {
+      "id": "e7",
+      "date": "2026-11-19",
+      "guest": "Asha",
+      "category": "Production",
+      "supplier": "Recording studio",
+      "ref": "INV-A0851789",
+      "hours": 1.5,
+      "items": [
+        "Studio hire + engineer",
+        "Additional camera",
+        "4K footage"
+      ],
+      "amount": 216,
+      "status": "Invoiced",
+      "payments": [],
+      "notes": "Invoice INV-A0851789 was originally for Jaak's 16 Oct slot. Transferred to Asha after Jaak cancelled.",
+      "editing": "Not invoiced",
+      "editingNote": "",
+      "invoice": "invoices/2026-11-19-asha.pdf"
+    }
+  ],
+  "bookings": [
+    {
+      "id": "b1",
+      "date": "2026-11-19",
+      "guest": "Asha",
+      "status": "Confirmed",
+      "package": "1.5h hire + engineer, additional camera, 4K footage",
+      "studioCost": 216,
+      "ref": "INV-A0851789",
+      "hospitalityPlan": "",
+      "hospitalityBudget": null,
+      "notes": "Took over Jaak's cancelled 16 Oct booking. Invoice transferred, no extra charge."
+    },
+    {
+      "id": "b2",
+      "date": "2026-10-16",
+      "guest": "Jaak",
+      "status": "Cancelled",
+      "package": "1.5h hire + engineer, additional camera, 4K footage",
+      "studioCost": 0,
+      "ref": "INV-A0851789",
+      "hospitalityPlan": "",
+      "hospitalityBudget": null,
+      "notes": "Cancelled. Booking and invoice moved to Asha (19 Nov)."
+    }
+  ]
+}
+</script>
+<script>
+(function(){
+  const CAT_COLOR={"Production":"var(--c-production)","Kit & accessories":"var(--c-kit)","Hospitality":"var(--c-hospitality)","Other":"var(--c-other)"};
+  const CATS=["Production","Kit & accessories","Hospitality","Other"];
+  const ITEM_OPTIONS=["Studio hire + engineer","Additional camera","4K footage","Advanced editing","Social media snippets","Teleprompter","Meal / drinks","Travel","Gift"];
+  const MATRIX_COLS=["Additional camera","4K footage","Advanced editing","Teleprompter","Social media snippets"];
+  const LS="bfp-finance-drafts-v1", LSB="bfp-finance-bookings-v1";
+  const TODAY=new Date(new Date().toISOString().slice(0,10));
+  const $=s=>document.querySelector(s);
+  const gbp=n=>"£"+Number(n).toLocaleString("en-GB",{minimumFractionDigits:Number(n)%1?2:0,maximumFractionDigits:2});
+  const fmtD=d=>new Date(d).toLocaleDateString("en-GB",{day:"numeric",month:"short",year:"numeric"});
+  const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+  const ls={get(){try{return JSON.parse(localStorage.getItem(LS)||"[]")}catch(e){return[]}},set(v){try{localStorage.setItem(LS,JSON.stringify(v))}catch(e){}}};
+
+  const lsb={get(){try{return JSON.parse(localStorage.getItem(LSB)||"[]")}catch(e){return[]}},set(v){try{localStorage.setItem(LSB,JSON.stringify(v))}catch(e){}}};
+  const allBookings=()=>(DATA.bookings||[]).map(b=>({...b,_draft:false})).concat(lsb.get().map(b=>({...b,_draft:true})));
+  let DATA,state={cat:"All",q:"",sort:"date",dir:1};
+
+  async function load(){
+    try{const r=await fetch("data.json?t="+Date.now(),{cache:"no-store"});if(!r.ok)throw 0;DATA=await r.json()}
+    catch(e){DATA=JSON.parse(document.getElementById("fallback").textContent)}
+    render();
+  }
+  const all=()=>DATA.entries.map(e=>({...e,_draft:false})).concat(ls.get().map(e=>({...e,_draft:true})));
+
+  // Group spend by recording (guest)
+  function recordings(rows){
+    const m=new Map();
+    rows.forEach(e=>{
+      const k=e.guest||"Unassigned";
+      if(!m.has(k))m.set(k,{guest:k,date:null,byCat:{},total:0,entries:[]});
+      const r=m.get(k);r.entries.push(e);r.total+=+e.amount;r.byCat[e.category]=(r.byCat[e.category]||0)+ +e.amount;
+      if(e.category==="Production"&&(!r.date||e.date<r.date))r.date=e.date;
+    });
+    m.forEach(r=>{if(!r.date)r.date=r.entries.map(e=>e.date).sort()[0]});
+    return [...m.values()].sort((a,b)=>a.date<b.date?-1:1);
+  }
+
+  function render(){
+    const rows=all(), recs=recordings(rows);
+    const total=rows.reduce((s,e)=>s+ +e.amount,0);
+    const hosp=rows.filter(e=>e.category==="Hospitality").reduce((s,e)=>s+ +e.amount,0);
+    const prod=rows.filter(e=>e.category==="Production");
+    const dates=rows.map(e=>e.date).sort();
+    $("#metaRange").textContent=dates.length?`${fmtD(dates[0])} to ${fmtD(dates[dates.length-1])}`:"No data";
+    const gh=DATA.meta.github||{};
+    $("#ghBtn").href=`https://github.com/${gh.owner}/${gh.repo}/blob/${gh.branch||"main"}/data.json`;
+    const flags=checks(rows,recs);
+    const crit=flags.filter(f=>f.lvl!=="info").length;
+    const avg=recs.length?total/recs.length:0;
+    const hours=prod.reduce((s,e)=>s+(+e.hours||0),0);
+    const nextB=allBookings().filter(b=>b.status!=="Cancelled"&&new Date(b.date)>=TODAY).sort((a,b)=>a.date<b.date?-1:1)[0];
+
+    $("#kpis").innerHTML=`
+      <div class="kpi accent"><div class="label">Total spend</div><div class="v num">${gbp(total)}</div><div class="d">${rows.length} line${rows.length===1?"":"s"} across ${recs.length} recordings</div></div>
+      <div class="kpi"><div class="label">Avg per recording</div><div class="v num">${gbp(Math.round(avg))}</div><div class="d">All categories included</div></div>
+      <div class="kpi"><div class="label">Next recording</div>${nextB?`<div class="v">${esc(nextB.guest)}</div><div class="d">${fmtD(nextB.date)} · ${esc(nextB.status)}</div>`:`<div class="v" style="color:var(--ink-3)">None</div><div class="d">Add a booking</div>`}</div>
+      <div class="kpi"><div class="label">Hospitality</div><div class="v num">${gbp(hosp)}</div>${hosp?`<div class="d">Logged for ${recs.filter(r=>r.byCat["Hospitality"]).length} of ${recs.length} recordings</div>`:`<span class="pending">Not logged yet</span>`}</div>
+      <div class="kpi"><div class="label">Items to check</div><div class="v num" style="color:${crit?"var(--crit)":"var(--good)"}">${crit}</div><div class="d">See checks below</div></div>`;
+
+    const drafts=ls.get().concat(lsb.get());
+    $("#draftBanner").classList.toggle("show",drafts.length>0);
+    $("#draftText").innerHTML=`<b>${drafts.length} local entr${drafts.length===1?"y":"ies"}</b> only visible in this browser. Export and upload data.json to publish.`;
+
+    $("#legend1").innerHTML=CATS.map(c=>`<span><i style="background:${CAT_COLOR[c]}"></i>${c}</span>`).join("");
+    perEpChart(recs);
+    catBars(rows,total);
+    monthly(rows);
+    matrix(recs);
+    bookingsView(rows);
+    editing(recs);
+    invoices(rows);
+    $("#flags").innerHTML=flags.map(f=>`<div class="flag ${f.lvl}"><div class="ic">${f.lvl==="crit"?"!":f.lvl==="info"?"i":"?"}</div><div><div class="t">${esc(f.t)}</div><div class="s">${esc(f.s)}</div></div></div>`).join("")||`<div class="flag info"><div class="ic">✓</div><div><div class="t">Nothing to check</div></div></div>`;
+    ledger(rows,total);
+    $("#guestList").innerHTML=recs.map(r=>`<option value="${esc(r.guest)}">`).join("");
+  }
+
+  function checks(rows,recs){
+    const out=[];
+    const byRef={};rows.forEach(e=>{if(e.ref){(byRef[e.ref]=byRef[e.ref]||[]).push(e)}});
+    Object.entries(byRef).forEach(([ref,list])=>{if(list.length>1)out.push({lvl:"crit",t:`Invoice ref ${ref} is used ${list.length} times`,s:list.map(e=>`${e.guest} (${fmtD(e.date)})`).join(" and ")+". One of these refs is probably wrong; check against the PDFs."})});
+    rows.filter(e=>new Date(e.date)>TODAY&&!allBookings().some(b=>b.status!=="Cancelled"&&b.guest===e.guest&&b.date===e.date)).forEach(e=>out.push({lvl:"warn",t:`Future-dated entry: ${e.guest}, ${fmtD(e.date)}`,s:"Either a pre-booked session or a date typo. Confirm the recording date."}));
+    rows.forEach(e=>{if(e.payments&&e.payments.length){const p=e.payments.reduce((s,x)=>s+ +x.amount,0);if(Math.abs(p-e.amount)>0.01)out.push({lvl:"crit",t:`Payments don't match invoice for ${e.guest}`,s:`Invoice ${gbp(e.amount)}, payments total ${gbp(p)}.`});}});
+    const pk={};rows.filter(e=>e.category==="Production").forEach(e=>{const k=(e.items||[]).slice().sort().join("|")+"@"+e.hours;(pk[k]=pk[k]||[]).push(e)});
+    Object.values(pk).forEach(list=>{const prices=[...new Set(list.map(e=>+e.amount))];if(prices.length>1){const lo=Math.min(...prices),hi=Math.max(...prices);const cheap=list.filter(e=>+e.amount===lo).map(e=>e.guest);out.push({lvl:"warn",t:`Same package, different price: ${gbp(lo)} vs ${gbp(hi)}`,s:`${list[0].hours}h with ${list[0].items.slice(1).join(", ").toLowerCase()}. ${cheap.join(", ")} paid ${gbp(lo)}; later sessions ${gbp(hi)} (+${Math.round((hi-lo)/lo*100)}%). Rate rise or missing line?`})}});
+    const noH=recs.filter(r=>!r.byCat["Hospitality"]&&new Date(r.date)<=TODAY).map(r=>r.guest);
+    if(noH.length)out.push({lvl:"info",t:`Hospitality not logged for ${noH.length} recording${noH.length>1?"s":""}`,s:noH.join(", ")+". Add Peter's guest spend to complete the true cost per episode."});
+    allBookings().filter(b=>b.status!=="Cancelled"&&+b.hospitalityBudget>0).forEach(b=>{const sp=rows.filter(e=>e.guest===b.guest&&e.category==="Hospitality").reduce((s,e)=>s+ +e.amount,0);if(sp>b.hospitalityBudget)out.push({lvl:"warn",t:`Hospitality over budget for ${b.guest}`,s:`Spent ${gbp(sp)} against a ${gbp(b.hospitalityBudget)} budget.`})});
+    (DATA.meta.knownIssues||[]).filter(s=>!/hospitality/i.test(s)).forEach(s=>out.push({lvl:"warn",t:s,s:"Logged manually in data.json."}));
+    rows.filter(e=>e.payments&&e.payments.length>1).forEach(e=>out.push({lvl:"info",t:`Split payment: ${e.guest}`,s:e.payments.map(p=>`${gbp(p.amount)} on ${fmtD(p.date)}`).join(" + ")+` = ${gbp(e.amount)}.`}));
+    return out;
+  }
+
+  function tipAt(box,html,x,y){
+    const t=box.querySelector(".tip");t.innerHTML=html;t.style.opacity=1;
+    const bw=box.clientWidth,tw=t.offsetWidth;
+    t.style.left=Math.max(0,Math.min(bw-tw,x-tw/2))+"px";t.style.top=Math.max(0,y-t.offsetHeight-12)+"px";
+  }
+  const hideTip=box=>box.querySelector(".tip").style.opacity=0;
+
+  function niceMax(v){if(v<=0)return 100;const p=Math.pow(10,Math.floor(Math.log10(v)));const n=v/p;return (n<=1?1:n<=2?2:n<=2.5?2.5:n<=5?5:10)*p}
+
+  function perEpChart(recs){
+    const box=$("#perEp");const W=Math.max(box.clientWidth||720,300),narrow=W/Math.max(recs.length,1)<70,H=narrow?260:320,m={t:22,r:4,b:narrow?30:48,l:40};
+    const iw=W-m.l-m.r,ih=H-m.t-m.b;const max=niceMax(Math.max(...recs.map(r=>r.total),1)*1.08);
+    const bw=Math.min(56,iw/recs.length*0.62),step=iw/Math.max(recs.length,1);
+    const y=v=>m.t+ih-v/max*ih;
+    let g=`<g class="grid">`;for(let i=0;i<=4;i++){const v=max/4*i;g+=`<line x1="${m.l}" x2="${W-m.r}" y1="${y(v)}" y2="${y(v)}"/>`}g+="</g>";
+    let ax=`<g class="axis">`;for(let i=0;i<=4;i++){const v=max/4*i;ax+=`<text x="${m.l-8}" y="${y(v)+4}" text-anchor="end">£${v}</text>`}ax+="</g>";
+    let bars="",labels="",hits="";
+    recs.forEach((r,i)=>{
+      const cx=m.l+step*i+step/2;let acc=0;
+      const segs=CATS.filter(c=>r.byCat[c]);
+      segs.forEach((c,j)=>{
+        const v=r.byCat[c],y0=y(acc),y1=y(acc+v),h=Math.max(0,y0-y1-(j>0?2:0));
+        const top=j===segs.length-1;const x=cx-bw/2,yy=y1+(j>0?0:0);
+        bars+= top?`<path d="M${x},${yy+h} V${yy+4} Q${x},${yy} ${x+4},${yy} H${x+bw-4} Q${x+bw},${yy} ${x+bw},${yy+4} V${yy+h} Z" fill="${CAT_COLOR[c]}"/>`
+                 :`<rect x="${x}" y="${yy}" width="${bw}" height="${h}" fill="${CAT_COLOR[c]}"/>`;
+        acc+=v;
+      });
+      labels+=`<text class="lbl num" style="font-size:${narrow?10:12}px" x="${cx}" y="${y(r.total)-7}" text-anchor="middle">${gbp(r.total)}</text>`;
+      labels+=`<text class="xl" style="font-size:${narrow?10:12}px" x="${cx}" y="${H-m.b+18}" text-anchor="middle">${esc(r.guest)}</text>`+(narrow?"":`<text class="xs" x="${cx}" y="${H-m.b+33}" text-anchor="middle">${new Date(r.date)>TODAY?"Upcoming":new Date(r.date).toLocaleDateString("en-GB",{day:"numeric",month:"short"})}</text>`);
+      hits+=`<rect class="hit" data-i="${i}" x="${m.l+step*i}" y="${m.t}" width="${step}" height="${ih}"/>`;
+    });
+    box.innerHTML=`<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Cost per recording">${g}${ax}<line x1="${m.l}" x2="${W-m.r}" y1="${y(0)}" y2="${y(0)}" stroke="var(--line-strong)"/>${bars}${labels}${hits}</svg><div class="tip"></div>`;
+    box.querySelectorAll(".hit").forEach(h=>{
+      h.addEventListener("mousemove",ev=>{const r=recs[+h.dataset.i];const rect=box.getBoundingClientRect();
+        const items=[...new Set(r.entries.flatMap(e=>e.items||[]))];
+        tipAt(box,`<b>${esc(r.guest)}</b><div style="font-size:12px;color:#BDB8AC;margin-bottom:6px">${fmtD(r.date)}</div>`+
+          CATS.map(c=>`<div class="r"><span><i style="background:${CAT_COLOR[c]}"></i>${c}</span><span class="num">${r.byCat[c]?gbp(r.byCat[c]):"–"}</span></div>`).join("")+
+          `<div class="r" style="margin-top:6px;border-top:1px solid rgba(255,255,255,.15);padding-top:6px;color:#fff"><span>Total</span><span class="num">${gbp(r.total)}</span></div>`+
+          (items.length?`<div style="margin-top:6px;font-size:12px;color:#BDB8AC">${esc(items.join(" · "))}</div>`:""),
+          ev.clientX-rect.left,ev.clientY-rect.top)});
+      h.addEventListener("mouseleave",()=>hideTip(box));
+    });
+  }
+
+  function catBars(rows,total){
+    const max=Math.max(...CATS.map(c=>rows.filter(e=>e.category===c).reduce((s,e)=>s+ +e.amount,0)),1);
+    $("#cats").innerHTML=CATS.map(c=>{const v=rows.filter(e=>e.category===c).reduce((s,e)=>s+ +e.amount,0);
+      return `<div class="catrow"><span class="n">${c}</span><div class="track">${v?`<div class="fill" style="width:${v/max*100}%;background:${CAT_COLOR[c]}"></div>`:""}</div><span class="amt num">${v?gbp(v):`<span class="empty">${c==="Hospitality"?"pending":"£0"}</span>`}</span></div>`}).join("")+
+      `<div style="font-size:12px;color:var(--ink-3);margin-top:8px">Teleprompter, extra camera and 4K are billed inside studio invoices, so they sit under Production. Log standalone kit purchases under Kit &amp; accessories.</div>`;
+  }
+
+  function monthly(rows){
+    const box=$("#monthly");const m={};rows.forEach(e=>{const k=e.date.slice(0,7);m[k]=(m[k]||0)+ +e.amount});
+    const keys=Object.keys(m).sort();if(!keys.length){box.innerHTML="";return}
+    const [y0,m0]=keys[0].split("-").map(Number),[y1,m1]=keys[keys.length-1].split("-").map(Number);
+    const months=[];for(let y=y0,mo=m0;y<y1||(y===y1&&mo<=m1);mo++){if(mo>12){mo=1;y++}months.push(`${y}-${String(mo).padStart(2,"0")}`);if(months.length>36)break}
+    const W=400,H=150,mg={t:16,r:4,b:22,l:4},iw=W-mg.l-mg.r,ih=H-mg.t-mg.b,max=Math.max(...Object.values(m));
+    const step=iw/months.length,bw=Math.max(6,step-4);
+    let s=`<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Spend by month"><line x1="${mg.l}" x2="${W-mg.r}" y1="${mg.t+ih}" y2="${mg.t+ih}" stroke="var(--line-strong)"/>`;
+    months.forEach((k,i)=>{const v=m[k]||0,h=v/max*ih,x=mg.l+i*step+(step-bw)/2,yy=mg.t+ih-h;
+      if(v)s+=`<path d="M${x},${yy+h} V${yy+Math.min(4,h)} Q${x},${yy} ${x+Math.min(4,bw/2)},${yy} H${x+bw-Math.min(4,bw/2)} Q${x+bw},${yy} ${x+bw},${yy+Math.min(4,h)} V${yy+h} Z" fill="var(--bistre)"/>`;
+      s+=`<text class="xs" x="${x+bw/2}" y="${H-6}" text-anchor="middle">${new Date(k+"-01").toLocaleDateString("en-GB",{month:"narrow"})}</text>`;
+      s+=`<rect class="hit" data-k="${k}" x="${mg.l+i*step}" y="${mg.t}" width="${step}" height="${ih}"/>`});
+    box.innerHTML=s+`</svg><div class="tip"></div>`;
+    box.querySelectorAll(".hit").forEach(h=>{h.addEventListener("mousemove",ev=>{const k=h.dataset.k,rect=box.getBoundingClientRect();
+      tipAt(box,`<b class="num">${gbp(m[k]||0)}</b><div style="font-size:12px;color:#BDB8AC">${new Date(k+"-01").toLocaleDateString("en-GB",{month:"long",year:"numeric"})}</div>`,ev.clientX-rect.left,ev.clientY-rect.top)});
+      h.addEventListener("mouseleave",()=>hideTip(box))});
+  }
+
+  function edStatus(r){
+    const st=r.entries.map(e=>e.editing).filter(Boolean);
+    if(st.includes("Paid"))return "Paid";
+    if(st.includes("Pending"))return "Pending";
+    if(st.includes("Not needed"))return "Not needed";
+    if(st.includes("Not invoiced"))return "Not invoiced";
+    return (new Set(r.entries.flatMap(e=>e.items||[]))).has("Advanced editing")?"Paid":"Not invoiced";
+  }
+  // Invoice files: links resolve relative to the site; existence checked once per load
+  const INV={};
+  const DL_ICON=`<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2v8M4.5 6.5 8 10l3.5-3.5M3 13h10"/></svg>`;
+  const invState=e=>INV[e.invoice]; // true | false | undefined(unknown)
+  const invLink=e=>invState(e)===false?`<span class="inlink off">PDF not uploaded</span>`:`<a class="inlink" href="${encodeURI(e.invoice)}" download target="_blank" rel="noopener">${DL_ICON.replace('<svg','<svg width="12" height="12"')} PDF</a>`;
+  async function probeInvoices(rows){
+    if(location.protocol==="file:")return;
+    const todo=[...new Set(rows.map(e=>e.invoice).filter(f=>f&&INV[f]===undefined))];
+    if(!todo.length)return;
+    await Promise.all(todo.map(f=>fetch(encodeURI(f),{method:"HEAD",cache:"no-store"}).then(r=>INV[f]=r.ok).catch(()=>INV[f]=false)));
+    render();
+  }
+  function invoices(rows){
+    const list=rows.filter(e=>e.invoice).sort((a,b)=>a.date<b.date?1:-1);
+    const up=list.filter(e=>invState(e)===true).length, known=list.some(e=>invState(e)!==undefined);
+    $("#invCount").textContent=known?`${up} of ${list.length} uploaded`:`${list.length} invoices`;
+    $("#invgrid").innerHTML=list.map(e=>{const miss=invState(e)===false;
+      return `<div class="inv ${miss?"missing":""}"><div class="doc">PDF</div><div><div class="g">${esc(e.guest)}</div><div class="m">${fmtD(e.date)} · ${esc(e.category)}</div><div class="m" style="font-size:12px">${esc(e.ref||"No ref")}</div>
+      <div class="a"><b class="num">${gbp(e.amount)}</b>${miss?`<span class="dl off">Not uploaded</span>`:`<a class="dl" href="${encodeURI(e.invoice)}" download target="_blank" rel="noopener">${DL_ICON}Download</a>`}</div></div></div>`}).join("");
+    probeInvoices(rows);
+  }
+
+  function bookingsView(rows){
+    const bs=allBookings();
+    const up=bs.filter(b=>b.status!=="Cancelled"&&new Date(b.date)>=TODAY).sort((a,b)=>a.date<b.date?-1:1);
+    const other=bs.filter(b=>!up.includes(b)).sort((a,b)=>a.date<b.date?1:-1);
+    const hs=g=>rows.filter(e=>e.guest===g&&e.category==="Hospitality").reduce((s,e)=>s+ +e.amount,0);
+    const days=d=>Math.round((new Date(d)-TODAY)/864e5);
+    $("#bookgrid").innerHTML=up.map(b=>{const dt=new Date(b.date),sp=hs(b.guest),bud=+b.hospitalityBudget||0,dd=days(b.date);
+      return `<div class="book"><div class="dt"><div class="d">${dt.getDate()}</div><div class="mo">${dt.toLocaleDateString("en-GB",{month:"short"})}</div><div class="in">${dd===0?"Today":`in ${dd}d`}</div></div>
+      <div><div><span class="gn">${esc(b.guest)}</span><span class="bs ${esc(b.status)}">${esc(b.status)}</span>${b._draft?`<span class="st Draft" style="margin-left:6px">Local</span>`:""}</div>
+      <div class="kv"><span>Studio</span><span>${esc(b.package||"Not set")}</span><span>Est. cost</span><span class="num">${b.studioCost?gbp(b.studioCost):"Not set"}${b.ref?` · ${esc(b.ref)}`:""}</span>
+      <span>Hospitality</span><span>${esc(b.hospitalityPlan||"Not planned yet")}</span>
+      <span>Budget</span><span class="num">${bud?`${gbp(sp)} of ${gbp(bud)} spent<div class="hospbar"><i style="width:${Math.min(100,sp/bud*100)}%"></i></div>`:(sp?`${gbp(sp)} spent, no budget set`:"No budget set")}</span></div>
+      ${b.notes?`<div class="nt">${esc(b.notes)}</div>`:""}
+      <div class="ba"><button class="btn" data-hosp="${esc(b.guest)}" data-date="${esc(b.date)}">+ Log hospitality</button>${b._draft?`<button class="rowx" data-rmb="${esc(b.id)}">Remove</button>`:""}</div></div></div>`}).join("")||`<div class="bempty">No upcoming bookings. Click <b>+ Add booking</b> to add one.</div>`;
+    $("#bpast").innerHTML=other.length?`<summary>Past and cancelled bookings (${other.length})</summary><ul>${other.map(b=>`<li><b>${esc(b.guest)}</b> · ${fmtD(b.date)} <span class="bs ${esc(b.status)}">${esc(b.status)}</span>${b.notes?`<div style="font-size:12.5px;color:var(--ink-3)">${esc(b.notes)}</div>`:""}${b._draft?` <button class="rowx" data-rmb="${esc(b.id)}">Remove</button>`:""}</li>`).join("")}</ul>`:"";
+    $("#bpast").style.display=other.length?"":"none";
+    document.querySelectorAll("[data-hosp]").forEach(x=>x.onclick=()=>openSpend("Hospitality",x.dataset.hosp,x.dataset.date));
+    document.querySelectorAll("[data-rmb]").forEach(x=>x.onclick=()=>{lsb.set(lsb.get().filter(b=>b.id!==x.dataset.rmb));render()});
+  }
+
+  function editing(recs){
+    const groups={"Paid":[],"Pending":[],"Not invoiced":[]};
+    recs.forEach(r=>{const s=edStatus(r);if(groups[s])groups[s].push(r)});
+    const note=r=>r.entries.map(e=>e.editingNote).filter(Boolean).join(" ");
+    const sd=r=>new Date(r.date).toLocaleDateString("en-GB",{day:"numeric",month:"short"});
+    const col=(key,cls,title,empty)=>`<div class="edcol ${cls}"><div class="hd"><span class="k"><i></i>${title}</span><span class="c num">${groups[key].length}</span></div>`+
+      (groups[key].map(r=>`<div class="eg"><b>${esc(r.guest)}</b><span>${sd(r)}</span></div>${note(r)?`<div class="en">${esc(note(r))}</div>`:""}`).join("")||`<div class="en" style="margin:0">${empty}</div>`)+`</div>`;
+    $("#edboard").innerHTML=col("Paid","paid","Paid","None yet")+col("Pending","pend","Pending: invoice missing","Nothing pending")+col("Not invoiced","none","No editing invoiced","All covered");
+    const n=groups["Not invoiced"].length;
+    $("#edq").textContent=n?`If any of the ${n} "no editing invoiced" recordings did go through advanced editing, mark them Pending in data.json so they're chased.`:"";
+  }
+
+  function matrix(recs){
+    const head=`<thead><tr><th>Recording</th><th>Date</th><th>Hours</th>${MATRIX_COLS.map(c=>`<th>${c.replace("Social media snippets","Snippets").replace("Additional camera","Extra camera").replace("Advanced editing","Adv. editing")}</th>`).join("")}<th>Hospitality</th><th style="text-align:right">Total</th></tr></thead>`;
+    const body=recs.map(r=>{const items=new Set(r.entries.flatMap(e=>e.items||[]));const hrs=r.entries.reduce((s,e)=>s+(+e.hours||0),0);
+      const missingEdit=edStatus(r)==="Pending";
+      return `<tr><td class="g">${esc(r.guest)}</td><td>${new Date(r.date).toLocaleDateString("en-GB",{day:"numeric",month:"short"})}</td><td class="num">${hrs||"–"}</td>${MATRIX_COLS.map(c=>`<td>${items.has(c)?`<span class="tick" title="${c}"></span>`:(c==="Advanced editing"&&missingEdit?`<span class="q" title="Invoice missing">Missing inv.</span>`:`<span class="nil"></span>`)}</td>`).join("")}<td>${r.byCat["Hospitality"]?gbp(r.byCat["Hospitality"]):`<span class="q">Not logged</span>`}</td><td class="num" style="text-align:right;font-weight:700">${gbp(r.total)}</td></tr>`}).join("");
+    $("#matrix").innerHTML=head+`<tbody>${body}</tbody>`;
+  }
+
+  function ledger(rows){
+    $("#catFilter").innerHTML=["All",...CATS].map(c=>`<button class="${state.cat===c?"on":""}" data-c="${c}">${c}</button>`).join("");
+    $("#catFilter").querySelectorAll("button").forEach(b=>b.onclick=()=>{state.cat=b.dataset.c;ledger(all())});
+    const q=state.q.toLowerCase();
+    let list=rows.filter(e=>(state.cat==="All"||e.category===state.cat)&&(!q||[e.guest,e.supplier,e.ref,(e.items||[]).join(" "),e.notes].join(" ").toLowerCase().includes(q)));
+    const k=state.sort;list.sort((a,b)=>{const A=k==="amount"?+a[k]:String(a[k]||""),B=k==="amount"?+b[k]:String(b[k]||"");return (A>B?1:A<B?-1:0)*state.dir});
+    const sub=list.reduce((s,e)=>s+ +e.amount,0);
+    const th=(key,lab,cls="")=>`<th class="${cls}" data-k="${key}">${lab}${state.sort===key?(state.dir>0?" ↑":" ↓"):""}</th>`;
+    $("#ledger").innerHTML=`<thead><tr>${th("date","Date")}${th("guest","Recording")}${th("category","Category")}<th>What it covered</th>${th("supplier","Supplier")}${th("ref","Ref")}${th("status","Status")}${th("amount","Amount","r")}</tr></thead><tbody>`+
+      list.map(e=>`<tr><td class="num" style="white-space:nowrap">${fmtD(e.date)}</td><td><b>${esc(e.guest)}</b>${e._draft?` <span class="st Draft">Local</span>`:""}</td><td><span class="pill"><i style="background:${CAT_COLOR[e.category]||"#999"}"></i>${esc(e.category)}</span></td><td class="items">${esc((e.items||[]).join(", "))}${e.notes?`<div style="color:var(--ink-3);font-size:12px;margin-top:2px">${esc(e.notes)}</div>`:""}${e._draft?`<div><button class="rowx" data-id="${e.id}">Remove</button></div>`:""}</td><td>${esc(e.supplier)}</td><td style="font-size:12.5px;white-space:nowrap">${esc(e.ref)}${e.invoice?`<div>${invLink(e)}</div>`:""}</td><td><span class="st ${esc(e.status)}">${esc(e.status)}</span></td><td class="r num"><b>${gbp(e.amount)}</b></td></tr>`).join("")+
+      `</tbody><tfoot><tr><td colspan="7">${list.length} line${list.length===1?"":"s"}${state.cat!=="All"||q?" (filtered)":""}</td><td class="r num">${gbp(sub)}</td></tr></tfoot>`;
+    $("#ledger").querySelectorAll("th[data-k]").forEach(t=>t.onclick=()=>{const kk=t.dataset.k;state.dir=state.sort===kk?-state.dir:1;state.sort=kk;ledger(all())});
+    $("#ledger").querySelectorAll(".rowx").forEach(b=>b.onclick=()=>{ls.set(ls.get().filter(e=>e.id!==b.dataset.id));render()});
+  }
+
+  // FORM
+  $("#itemChecks").innerHTML=ITEM_OPTIONS.map(o=>`<label><input type="checkbox" name="items" value="${o}">${o}</label>`).join("");
+  function openSpend(cat,guest,date){const f=$("#entryForm");f.reset();f.date.value=date||new Date().toISOString().slice(0,10);f.category.value=cat;if(guest)f.guest.value=guest;
+    $("#dlgTitle").textContent=cat==="Hospitality"?"Log hospitality":"Add spend";
+    if(cat==="Hospitality"){const c=f.querySelector('input[value="Meal / drinks"]');if(c)c.checked=true;f.status.value="Paid"}
+    $("#dlg").showModal()}
+  $("#addBtn").onclick=()=>openSpend("Production");
+  $("#addHospBtn").onclick=()=>openSpend("Hospitality");
+  const openBook=()=>{const f=$("#bookForm");f.reset();$("#bdlg").showModal()};
+  $("#addBookBtn").onclick=openBook;$("#addBookBtn2").onclick=openBook;
+  $("#bookForm").addEventListener("submit",ev=>{
+    if(ev.submitter&&ev.submitter.value!=="save")return;
+    const fd=new FormData(ev.target),num=k=>fd.get(k)?+fd.get(k):null;
+    const b={id:"bd"+Date.now(),date:fd.get("date"),guest:fd.get("guest").trim(),status:fd.get("status"),package:fd.get("package").trim(),studioCost:num("studioCost"),
+      ref:fd.get("ref").trim(),hospitalityPlan:fd.get("hospitalityPlan").trim(),hospitalityBudget:num("hospitalityBudget"),notes:fd.get("notes").trim()};
+    const l=lsb.get();l.push(b);lsb.set(l);render();
+  });
+  $("#entryForm").addEventListener("submit",ev=>{
+    if(ev.submitter&&ev.submitter.value!=="save"){return}
+    const f=ev.target,fd=new FormData(f);
+    const e={id:"d"+Date.now(),date:fd.get("date"),guest:fd.get("guest").trim(),category:fd.get("category"),supplier:fd.get("supplier").trim(),ref:fd.get("ref").trim(),
+      hours:fd.get("hours")?+fd.get("hours"):0,items:fd.getAll("items"),amount:+fd.get("amount"),status:fd.get("status"),payments:[],notes:fd.get("notes").trim(),editing:fd.get("editing")||undefined,invoice:fd.get("invoice").trim()||`invoices/${fd.get("date")}-${fd.get("guest").trim().toLowerCase().replace(/[^a-z0-9]+/g,"-")}.pdf`};
+    const d=ls.get();d.push(e);ls.set(d);render();
+  });
+  function exportJSON(){
+    const out=JSON.parse(JSON.stringify(DATA));
+    out.entries=out.entries.concat(ls.get().map((e,i)=>({...e,id:"e"+(DATA.entries.length+i+1)})));
+    out.bookings=(out.bookings||[]).concat(lsb.get().map((b,i)=>({...b,id:"b"+((DATA.bookings||[]).length+i+1)})));
+    const blob=new Blob([JSON.stringify(out,null,2)],{type:"application/json"});
+    const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="data.json";a.click();URL.revokeObjectURL(a.href);
+  }
+  $("#exportBtn").onclick=exportJSON;$("#exportBtn2").onclick=exportJSON;
+  $("#clearDrafts").onclick=()=>{ls.set([]);lsb.set([]);render()};
+  $("#search").addEventListener("input",e=>{state.q=e.target.value;ledger(all())});
+  let rt;window.addEventListener("resize",()=>{clearTimeout(rt);rt=setTimeout(()=>DATA&&render(),150)});
+  load();
+})();
+</script>
+</body>
+</html>
