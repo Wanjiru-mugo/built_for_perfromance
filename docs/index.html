@@ -1,0 +1,748 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BFP Guest Map</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter+Tight:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --cream:#FCFBF5; --bistre:#322E2E; --green:#9AC634; --green-ink:#5B7F17;
+    --paper:#FFFFFF; --line:#E7E4D9; --line-strong:#D3CFC2;
+    --ink:#322E2E; --ink-2:#6B6560; --ink-3:#9A948C;
+    --c-conn:#1F78A8; --c-direct:#5B7F17; --c-both:#8A5AA6; --c-aud:#C9703A; --c-low:#9A948C; --c-tbd:#BDB8AC; --c-comp:#B3261E;
+    --warn:#B5610F; --crit:#B3261E; --good:#3E7D1E;
+    --radius:14px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{background:var(--cream)}
+  body{color:var(--ink);font-family:'Inter Tight',system-ui,sans-serif;font-size:15px;line-height:1.5;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:1180px;margin:0 auto;padding:0 24px}
+  .label{font-size:12px;font-weight:600;letter-spacing:1.4px;text-transform:uppercase;color:var(--ink-2)}
+  .num{font-variant-numeric:tabular-nums}
+  button,input,select,textarea{font:inherit;color:inherit}
+
+  header.hero{background:var(--bistre);color:var(--cream);position:relative}
+  header.hero::after{content:"";position:absolute;inset:0;opacity:.07;pointer-events:none;
+    background-image:linear-gradient(135deg,var(--cream) 25%,transparent 25%),linear-gradient(135deg,transparent 75%,var(--cream) 75%);background-size:44px 44px}
+  .hero-in{position:relative;z-index:1;padding:28px 24px 0}
+  .brandrow{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap}
+  .lockup{display:flex;align-items:center;gap:12px;color:var(--cream);text-decoration:none}
+  .lockup svg{width:34px;height:34px}
+  .lockup span{font-family:'Anton',sans-serif;font-size:15px;line-height:1.05;text-transform:uppercase;letter-spacing:.3px}
+  .actions{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+  .btn{border:1px solid var(--line-strong);border-radius:10px;padding:8px 14px;font-weight:600;font-size:14px;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;gap:6px;background:var(--paper);color:var(--ink)}
+  .btn.primary{background:var(--green);color:var(--bistre);border-color:transparent}
+  .btn.ghost-dark{background:transparent;color:var(--cream);border-color:rgba(252,251,245,.35)}
+  .btn.small{padding:5px 10px;font-size:13px}
+  .btn.danger{color:var(--crit)}
+  .btn:focus-visible,.tab:focus-visible{outline:2px solid var(--green);outline-offset:2px}
+  .menu{position:relative}
+  .menu-list{position:absolute;right:0;top:calc(100% + 6px);background:var(--paper);color:var(--ink);border:1px solid var(--line);border-radius:12px;box-shadow:0 10px 30px rgba(0,0,0,.15);padding:6px;display:none;min-width:210px;z-index:20}
+  .menu-list.open{display:block}
+  .menu-list button{display:block;width:100%;text-align:left;background:none;border:none;padding:8px 10px;border-radius:8px;cursor:pointer;font-size:14px}
+  .menu-list button:hover{background:#F4F1E7}
+  h1.title{font-family:'Anton',Impact,sans-serif;font-weight:400;font-size:clamp(34px,6vw,60px);line-height:1;margin-top:28px;text-transform:uppercase}
+  .sub{color:rgba(252,251,245,.75);max-width:640px;margin-top:10px}
+  .tabs{display:flex;gap:4px;margin-top:24px}
+  .tab{background:transparent;border:none;color:rgba(252,251,245,.7);padding:12px 18px;font-weight:600;font-size:15px;cursor:pointer;border-radius:12px 12px 0 0;text-decoration:none}
+  .tab.active{background:var(--cream);color:var(--ink)}
+  .tab .count[hidden]{display:none}
+  .tab .count{display:inline-block;margin-left:6px;background:var(--green);color:var(--bistre);border-radius:999px;padding:0 7px;font-size:12px}
+
+  .banner{margin-top:18px;background:#FFF6E5;border:1px solid #F0D9A8;color:#6B4A0E;border-radius:12px;padding:12px 16px;display:none;gap:12px;align-items:center;flex-wrap:wrap;justify-content:space-between}
+  .banner.show{display:flex}
+
+  .view{display:none;padding-top:24px}
+  .view.active{display:block}
+  .kpis{display:grid;grid-template-columns:repeat(6,1fr);gap:12px}
+  .kpi{background:var(--paper);border:1px solid var(--line);border-radius:var(--radius);padding:14px 16px}
+  .kpi b{display:block;font-family:'Anton',sans-serif;font-weight:400;font-size:32px;line-height:1.1}
+  .kpi small{color:var(--ink-2);font-size:13px}
+  .kpi.alert b{color:var(--crit)}
+
+  section{margin-top:36px}
+  .sec-head{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;flex-wrap:wrap;margin-bottom:12px}
+  .sec-head h2{font-family:'Anton',sans-serif;font-weight:400;font-size:26px;text-transform:uppercase;letter-spacing:.3px}
+  .card{background:var(--paper);border:1px solid var(--line);border-radius:var(--radius);padding:18px}
+
+  .matrix-wrap{display:grid;grid-template-columns:2fr 1fr;gap:16px}
+  svg.matrix{width:100%;height:auto;display:block}
+  .legend{display:flex;flex-direction:column;gap:8px;font-size:14px}
+  .legend div{display:flex;gap:8px;align-items:flex-start}
+  .dot{width:11px;height:11px;border-radius:50%;flex-shrink:0;margin-top:5px}
+  .unscored{margin-top:14px;font-size:13px;color:var(--ink-2)}
+  .unscored .chip{cursor:pointer}
+
+  .filters{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+  .filters input,.filters select{background:var(--paper);border:1px solid var(--line-strong);border-radius:10px;padding:7px 10px;font-size:14px}
+  .filters input{min-width:200px;flex:1}
+  .tbl-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:var(--radius);background:var(--paper)}
+  table{border-collapse:collapse;width:100%;min-width:1020px;font-size:14px}
+  th{text-align:left;font-size:11px;letter-spacing:1.2px;text-transform:uppercase;color:var(--ink-2);font-weight:600;padding:10px 12px;border-bottom:1px solid var(--line);background:#F7F5EC}
+  td{padding:10px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+  tr.row{cursor:pointer}
+  tr.row:hover td{background:#FAF8F0}
+  .nm{font-weight:600}
+  .co{color:var(--ink-2);font-size:13px}
+  .pill{display:inline-block;padding:2px 9px;border-radius:999px;font-size:12px;font-weight:600;white-space:nowrap;color:#fff}
+  .pill.auto::after{content:" (auto)";font-weight:400}
+  .pill.ghost{background:transparent!important;color:var(--ink-2);border:1px dashed var(--line-strong)}
+  .pill.st{background:#F1EEE3;color:var(--ink)}
+  .chip{display:inline-block;padding:2px 8px;border-radius:8px;background:#F1EEE3;font-size:12px;margin:2px 4px 2px 0}
+  .chip.green{background:#EEF6DC;color:var(--green-ink)}
+  .bar{display:flex;align-items:center;gap:6px}
+  .bar i{display:block;height:6px;border-radius:3px;background:var(--line)}
+  .bar i span{display:block;height:6px;border-radius:3px}
+  .flag{color:var(--crit);font-weight:600;font-size:12px}
+  .muted{color:var(--ink-3)}
+  .overdue{color:var(--crit);font-weight:600}
+
+  /* follow-ups */
+  .fu-list{display:flex;flex-direction:column;gap:10px}
+  details.fu{background:var(--paper);border:1px solid var(--line);border-radius:var(--radius)}
+  details.fu[open]{border-color:var(--line-strong)}
+  details.fu>summary{list-style:none;cursor:pointer;padding:14px 18px;display:grid;grid-template-columns:minmax(180px,1.6fr) 1fr 1fr 1.4fr auto;gap:12px;align-items:center}
+  details.fu>summary::-webkit-details-marker{display:none}
+  details.fu>summary .caret{transition:transform .15s;color:var(--ink-3);font-size:18px}
+  details.fu[open]>summary .caret{transform:rotate(90deg)}
+  .fu-body{padding:4px 18px 18px;border-top:1px solid var(--line)}
+  .plan{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:14px 0}
+  .plan div{background:#F7F5EC;border-radius:10px;padding:10px 12px;font-size:13px}
+  .plan b{display:block;font-size:11px;letter-spacing:1.2px;text-transform:uppercase;color:var(--ink-2);margin-bottom:2px}
+  .timeline{list-style:none;border-left:2px solid var(--line);margin:8px 0 12px 6px;padding-left:16px}
+  .timeline li{position:relative;padding:8px 0}
+  .timeline li::before{content:"";position:absolute;left:-23px;top:14px;width:12px;height:12px;border-radius:50%;background:var(--paper);border:2px solid var(--line-strong)}
+  .timeline li.Sent::before{border-color:var(--c-conn)}
+  .timeline li.Replied::before,.timeline li.Meeting::before{background:var(--green);border-color:var(--green-ink)}
+  .timeline li.Draft::before{border-style:dashed}
+  .tl-head{display:flex;gap:8px;flex-wrap:wrap;align-items:center;font-size:14px}
+  .tl-body{white-space:pre-wrap;font-size:13px;color:var(--ink-2);margin-top:4px;background:#FAF8F0;border-radius:8px;padding:8px 10px}
+  .tl-actions{display:flex;gap:6px;margin-top:6px;flex-wrap:wrap}
+  .out{display:inline-block;padding:1px 8px;border-radius:999px;font-size:12px;font-weight:600}
+  .out.Draft{background:#F1EEE3;color:var(--ink-2)}
+  .out.Sent{background:#E3F0F8;color:var(--c-conn)}
+  .out.Replied,.out.Meeting{background:#EEF6DC;color:var(--green-ink)}
+  .out.No{background:#FBE9E7;color:var(--crit)}
+
+  dialog{margin:auto;border:none;border-radius:18px;padding:0;max-width:780px;width:calc(100% - 32px);background:var(--paper);color:var(--ink)}
+  dialog::backdrop{background:rgba(50,46,46,.55)}
+  .dlg-head{background:var(--bistre);color:var(--cream);padding:18px 22px;display:flex;justify-content:space-between;align-items:center;gap:12px}
+  .dlg-head h3{font-family:'Anton',sans-serif;font-weight:400;font-size:24px;text-transform:uppercase}
+  .dlg-body{padding:18px 22px;max-height:70vh;overflow:auto}
+  .dlg-foot{padding:14px 22px;border-top:1px solid var(--line);display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap}
+  fieldset{border:none;margin-bottom:18px}
+  legend{font-size:12px;font-weight:700;letter-spacing:1.4px;text-transform:uppercase;color:var(--green-ink);margin-bottom:8px}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px 14px}
+  .grid2 .full{grid-column:1/-1}
+  label.f{display:flex;flex-direction:column;font-size:13px;font-weight:600;gap:4px}
+  label.f input,label.f select,label.f textarea{font-weight:400;border:1px solid var(--line-strong);border-radius:10px;padding:7px 10px;font-size:14px;background:#fff}
+  label.f textarea{min-height:64px;resize:vertical}
+  label.f textarea.tall{min-height:160px}
+  .hint{font-weight:400;color:var(--ink-3);font-size:12px}
+  details.inline{border:1px solid var(--line);border-radius:12px;padding:10px 14px;margin-bottom:18px}
+  details.inline summary{cursor:pointer;font-size:12px;font-weight:700;letter-spacing:1.4px;text-transform:uppercase;color:var(--green-ink)}
+
+  footer{margin:48px 0 32px;color:var(--ink-3);font-size:13px}
+  .empty{padding:28px;text-align:center;color:var(--ink-2)}
+
+  @media (max-width:900px){
+    .kpis{grid-template-columns:repeat(3,1fr)}
+    .matrix-wrap{grid-template-columns:1fr}
+    details.fu>summary{grid-template-columns:1fr auto}
+    details.fu>summary .hide-sm{display:none}
+    .plan{grid-template-columns:1fr}
+  }
+  @media (max-width:560px){
+    .wrap{padding:0 16px}
+    .hero-in{padding:24px 16px 0}
+    .kpis{grid-template-columns:repeat(2,1fr)}
+    .grid2{grid-template-columns:1fr}
+    .tab{padding:10px 12px;font-size:14px}
+  }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="wrap hero-in">
+    <div class="brandrow">
+      <a class="lockup" href="#overview">
+        <svg viewBox="0 0 5 5" aria-hidden="true"><g fill="#9AC634"><polygon points="0,2 1,1 1,5 0,5"/><polygon points="1,1 2,0 4,0 4,1"/><rect x="4" y="1" width="1" height="2"/><polygon points="1.15,4 2,3 4,3 4,4"/></g></svg>
+        <span>Built for<br>performance</span>
+      </a>
+      <div class="actions">
+        <button class="btn primary" id="addBtn">+ Add guest</button>
+        <button class="btn primary" id="logBtn">+ Log follow-up</button>
+        <button class="btn ghost-dark" id="openBtn">Open CSV</button>
+        <div class="menu">
+          <button class="btn ghost-dark" id="exportBtn" aria-haspopup="true">Export ▾</button>
+          <div class="menu-list" id="exportMenu">
+            <button data-x="guests">guests.csv</button>
+            <button data-x="followups">followups.csv</button>
+            <button data-x="both">Both files</button>
+          </div>
+        </div>
+        <a class="btn ghost-dark" id="ghBtn" target="_blank" rel="noopener">Edit on GitHub</a>
+        <input type="file" id="fileIn" accept=".csv,text/csv" multiple hidden>
+      </div>
+    </div>
+    <h1 class="title">Guest map</h1>
+    <p class="sub">Every guest, what they are worth to the podcast's audience, what they could open up for the business, and every follow-up we have sent them.</p>
+    <div class="banner" id="draftBanner">
+      <span id="draftText"></span>
+      <span class="actions"><button class="btn small primary" id="bannerExport">Export both files</button><button class="btn small" id="discardBtn">Discard edits</button></span>
+    </div>
+    <nav class="tabs" role="tablist">
+      <a class="tab" href="#overview" data-view="overview" role="tab">Overview</a>
+      <a class="tab" href="#followups" data-view="followups" role="tab">Follow-ups<span class="count" id="dueCount" hidden></span></a>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <!-- ============ OVERVIEW ============ -->
+  <div class="view" id="view-overview">
+    <div class="kpis" id="kpis"></div>
+
+    <section>
+      <div class="sec-head"><h2>Strategic value</h2><span class="label">Business value vs audience value</span></div>
+      <div class="matrix-wrap">
+        <div class="card"><svg class="matrix" id="matrix" viewBox="0 0 640 420" role="img" aria-label="Guest matrix"></svg></div>
+        <div class="card">
+          <div class="label" style="margin-bottom:10px">Category</div>
+          <div class="legend" id="legend"></div>
+          <div class="unscored" id="unscored"></div>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="sec-head"><h2>All guests</h2><span class="label" id="countLbl"></span></div>
+      <div class="filters">
+        <input type="search" id="q" placeholder="Search name, company, notes">
+        <select id="fCat"></select>
+        <select id="fStatus"></select>
+        <select id="sortBy">
+          <option value="pipeline">Sort: pipeline stage</option>
+          <option value="priority">Sort: priority</option>
+          <option value="next">Sort: next action date</option>
+          <option value="name">Sort: name</option>
+        </select>
+      </div>
+      <div class="tbl-wrap">
+        <table>
+          <thead><tr>
+            <th>Guest</th><th>Status</th><th>Category</th><th>Audience</th><th>Connector</th><th>Opportunity</th><th>Referred</th><th>Last contact</th><th>Next action</th>
+          </tr></thead>
+          <tbody id="tbody"></tbody>
+        </table>
+      </div>
+    </section>
+  </div>
+
+  <!-- ============ FOLLOW-UPS ============ -->
+  <div class="view" id="view-followups">
+    <div class="kpis" id="fuKpis"></div>
+
+    <section>
+      <div class="sec-head"><h2>Guest follow-up status</h2><span class="label">Click a guest to see every email and next step</span></div>
+      <div class="filters">
+        <input type="search" id="fq" placeholder="Search guest, subject, email text">
+        <select id="fuStatus"></select>
+        <select id="fuStage"></select>
+        <select id="fuShow">
+          <option value="active">Guests with follow-up activity or a plan</option>
+          <option value="after">Booked or recorded guests</option>
+          <option value="all">All guests</option>
+        </select>
+      </div>
+      <div class="fu-list" id="fuList"></div>
+    </section>
+
+    <section>
+      <div class="sec-head"><h2>Activity log</h2><span class="label" id="logCount"></span></div>
+      <div class="tbl-wrap">
+        <table>
+          <thead><tr><th>Date</th><th>Guest</th><th>Channel</th><th>Subject</th><th>Sent by</th><th>Outcome</th><th>Next step</th></tr></thead>
+          <tbody id="logBody"></tbody>
+        </table>
+      </div>
+    </section>
+  </div>
+
+  <footer>
+    Data: <span id="srcLbl">guests.csv + followups.csv</span>. Edit the CSVs in Excel or on this page, then upload them to the repo. No code changes needed.
+  </footer>
+</main>
+
+<!-- Guest dialog -->
+<dialog id="dlg">
+  <form method="dialog" id="form">
+    <div class="dlg-head"><h3 id="dlgTitle">Guest</h3><button class="btn small ghost-dark" value="cancel" formnovalidate>Close</button></div>
+    <div class="dlg-body">
+      <fieldset><legend>Profile</legend>
+        <div class="grid2">
+          <label class="f">Name<input name="name" required></label>
+          <label class="f">Role<input name="role"></label>
+          <label class="f">Company<input name="company"></label>
+          <label class="f">Sector<input name="sector"></label>
+          <label class="f">Status<select name="status"></select></label>
+          <label class="f">Episode / booked date<input type="date" name="episode_date"></label>
+          <label class="f full">Why invite<textarea name="why_invite"></textarea></label>
+          <label class="f">Recommended by<input name="recommended_by" list="guestNames"><span class="hint">Pick the guest who introduced them. Counts toward that guest's referrals.</span></label>
+          <label class="f">Tags<input name="notion_tags" placeholder="Good content; Doorway"></label>
+        </div>
+      </fieldset>
+      <fieldset><legend>Contact</legend>
+        <div class="grid2">
+          <label class="f">Email<input name="email" type="email"></label>
+          <label class="f">Phone<input name="phone"></label>
+          <label class="f full">LinkedIn URL<input name="linkedin_url" type="url" placeholder="https://www.linkedin.com/in/..."></label>
+        </div>
+      </fieldset>
+      <fieldset><legend>Audience value</legend>
+        <div class="grid2">
+          <label class="f">Followers (main platform)<input name="followers" type="number" min="0" step="1"></label>
+          <label class="f">Posting activity<select name="posting"></select><span class="hint">Active = weekly or more. Occasional = monthly. Dormant = rarely.</span></label>
+        </div>
+      </fieldset>
+      <fieldset><legend>Business value</legend>
+        <div class="grid2">
+          <label class="f">Connector score (0 to 5)<input name="connector_score" type="number" min="0" max="5" step="1"><span class="hint">0 no useful network. 3 well connected in UK construction or QS. 5 can introduce target guests or clients on request.</span></label>
+          <label class="f">Opportunity score (0 to 5)<input name="opportunity_score" type="number" min="0" max="5" step="1"><span class="hint">0 no link. 3 at a target company with some influence. 5 decision-maker at a company we want to work with.</span></label>
+          <label class="f">Competitor?<select name="competitor"></select><span class="hint">Direct = same service to the same clients.</span></label>
+          <label class="f full">Category override<select name="category"></select></label>
+        </div>
+      </fieldset>
+      <fieldset><legend>Engagement plan</legend>
+        <div class="grid2">
+          <label class="f full">Their interests and goals<textarea name="their_interests"></textarea></label>
+          <label class="f full">What we can offer them<textarea name="what_we_can_offer"></textarea></label>
+          <label class="f full">Follow-up idea<textarea name="follow_up_idea" placeholder="e.g. Lunch with Peter, ask for 2 guest intros"></textarea></label>
+          <label class="f">Follow-up stage<select name="follow_up_stage"></select></label>
+          <label class="f">Owner<input name="follow_up_owner" placeholder="Peter, Mary..."></label>
+          <label class="f">Next action date<input type="date" name="next_action_date"></label>
+          <label class="f full">Notes<textarea name="notes"></textarea></label>
+        </div>
+      </fieldset>
+      <details class="inline" id="dlgHistory"><summary>Follow-up history</summary><div id="dlgHistoryBody"></div></details>
+    </div>
+    <div class="dlg-foot">
+      <button class="btn danger" id="delBtn" value="delete" formnovalidate>Delete guest</button>
+      <span class="actions"><button class="btn" value="cancel" formnovalidate>Cancel</button><button class="btn primary" value="save">Save</button></span>
+    </div>
+  </form>
+</dialog>
+
+<!-- Follow-up dialog -->
+<dialog id="logDlg">
+  <form method="dialog" id="logForm">
+    <div class="dlg-head"><h3 id="logTitle">Log follow-up</h3><button class="btn small ghost-dark" value="cancel" formnovalidate>Close</button></div>
+    <div class="dlg-body">
+      <div class="grid2">
+        <label class="f">Guest<select name="guest" required></select></label>
+        <label class="f">Date sent<input type="date" name="date"><span class="hint">Leave blank while it is a draft.</span></label>
+        <label class="f">Channel<select name="channel"></select></label>
+        <label class="f">Direction<select name="direction"></select></label>
+        <label class="f full">Subject<input name="subject"></label>
+        <label class="f full">Email text<textarea class="tall" name="body" placeholder="Paste the email you sent, or draft it here and use Open in email to send it."></textarea></label>
+        <label class="f">Sent by<input name="sent_by" placeholder="Peter, Mary..."></label>
+        <label class="f">Outcome<select name="outcome"></select></label>
+        <label class="f">Next step<input name="next_step" placeholder="e.g. Chase if no reply"></label>
+        <label class="f">Next step date<input type="date" name="next_date"><span class="hint">Also updates the guest's next action date.</span></label>
+      </div>
+    </div>
+    <div class="dlg-foot">
+      <button class="btn danger" id="logDel" value="delete" formnovalidate>Delete entry</button>
+      <span class="actions"><button class="btn" value="cancel" formnovalidate>Cancel</button><button class="btn primary" value="save">Save</button></span>
+    </div>
+  </form>
+</dialog>
+<datalist id="guestNames"></datalist>
+
+<script>
+/* ===== Settings: the only lines you might ever change ===== */
+const CONFIG = {
+  guestsCsv: 'guests.csv',
+  followupsCsv: 'followups.csv',
+  github: { owner: 'Wanjiru-mugo', repo: 'built_for_perfromance', branch: 'main', folder: 'bfp-guests' }
+};
+
+const G_FIELDS = ['name','role','company','sector','status','episode_date','email','phone','linkedin_url','recommended_by','notion_tags','why_invite','followers','posting','connector_score','opportunity_score','competitor','category','their_interests','what_we_can_offer','follow_up_idea','follow_up_stage','follow_up_owner','next_action_date','notes'];
+const F_FIELDS = ['id','guest','date','channel','direction','subject','body','sent_by','outcome','next_step','next_date'];
+const STATUSES = ['Want to invite','Invite in progress','Agreed to come on','Date booked','Episode recorded','Published','To be revisited','Declined'];
+const OPTS = {
+  status: STATUSES,
+  posting: ['','Active','Occasional','Dormant'],
+  competitor: ['','None','Adjacent','Direct'],
+  category: ['','Connector','Direct opportunity','Both','Audience builder','Low priority'],
+  follow_up_stage: ['Not started','Planned','In progress','Done'],
+  channel: ['Email','LinkedIn message','Call','Meeting','Lunch','WhatsApp','Other'],
+  direction: ['Outgoing','Incoming'],
+  outcome: ['Draft','Sent','Replied','Meeting booked','No reply']
+};
+const CAT = {
+  'Connector':{c:'var(--c-conn)',d:'Big network. Ask for introductions to future guests or clients.'},
+  'Direct opportunity':{c:'var(--c-direct)',d:'Works at a company we want as a client. Build the relationship toward work.'},
+  'Both':{c:'var(--c-both)',d:'Strong network and a direct route to work. Highest priority.'},
+  'Audience builder':{c:'var(--c-aud)',d:'Active, sizeable following. Value is episode reach, not business.'},
+  'Low priority':{c:'var(--c-low)',d:'Scored, nothing significant either way. Light-touch thank-you only.'},
+  'Competitor: review':{c:'var(--c-comp)',d:'Direct competitor. Check before inviting or promoting.'},
+  'To assess':{c:'var(--c-tbd)',d:'Not scored yet.'}
+};
+const DRAFT_KEY = 'bfpGuestMap.draft.v2';
+let rows = [], logs = [], editIdx = -1, logEditId = null, loadFailed = false;
+
+/* ---- CSV ---- */
+function parseRaw(text){
+  const out=[]; let row=[], cell='', q=false;
+  text = text.replace(/^﻿/,'');
+  for(let i=0;i<text.length;i++){
+    const ch=text[i];
+    if(q){ if(ch==='"'){ if(text[i+1]==='"'){cell+='"';i++;} else q=false; } else cell+=ch; }
+    else if(ch==='"') q=true;
+    else if(ch===','){row.push(cell);cell='';}
+    else if(ch==='\n'||ch==='\r'){ if(ch==='\r'&&text[i+1]==='\n')i++; row.push(cell); out.push(row); row=[]; cell=''; }
+    else cell+=ch;
+  }
+  if(cell!==''||row.length){row.push(cell);out.push(row);}
+  return out.filter(r=>r.some(c=>c.trim()!==''));
+}
+function parseCSV(text, fields){
+  const raw=parseRaw(text); if(!raw.length) return {head:[],rows:[]};
+  const head=raw[0].map(h=>h.trim().toLowerCase().replace(/\s+/g,'_'));
+  const list=raw.slice(1).map(r=>{const o={}; fields.forEach(f=>{const k=head.indexOf(f); o[f]=k>-1?(r[k]||'').trim():'';}); return o;});
+  return {head, rows:list};
+}
+function toCSV(list, fields){
+  const esc=v=>{v=v==null?'':String(v); return /[",\n\r]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v;};
+  return [fields.join(','), ...list.map(r=>fields.map(f=>esc(r[f])).join(','))].join('\r\n')+'\r\n';
+}
+const loadGuests = t => parseCSV(t,G_FIELDS).rows.filter(r=>r.name).map(r=>({...r, follow_up_stage:r.follow_up_stage||'Not started', status:r.status||'Want to invite'}));
+const loadLogs = t => parseCSV(t,F_FIELDS).rows.filter(r=>r.guest).map((r,i)=>({...r, id:r.id||('f'+Date.now()+i), outcome:r.outcome||'Sent'}));
+
+/* ---- Scoring ---- */
+const num = v => (v===''||v==null||isNaN(+v)) ? null : +v;
+function audienceScore(r){
+  const f=num(r.followers); if(f==null||!r.posting) return null;
+  const band = f<1000?1 : f<5000?2 : f<20000?3 : f<100000?4 : 5;
+  const mult = {Active:1,Occasional:.6,Dormant:.2}[r.posting];
+  return mult==null?null:Math.round(band*mult*2*10)/10;
+}
+function bizScore(r){ const c=num(r.connector_score), o=num(r.opportunity_score); if(c==null&&o==null) return null; return Math.max(c||0,o||0)*2; }
+function autoCategory(r){
+  if(r.competitor==='Direct') return 'Competitor: review';
+  const c=num(r.connector_score), o=num(r.opportunity_score), a=audienceScore(r);
+  if(c==null&&o==null&&a==null) return 'To assess';
+  if((c||0)>=3&&(o||0)>=3) return 'Both';
+  if((o||0)>=3) return 'Direct opportunity';
+  if((c||0)>=3) return 'Connector';
+  if((a||0)>=6) return 'Audience builder';
+  return (c==null&&o==null) ? 'To assess' : 'Low priority';
+}
+const category = r => r.category ? {name:r.category,auto:false} : {name:autoCategory(r),auto:true};
+const priority = r => (bizScore(r)||0)*1.5 + (audienceScore(r)||0) + referrals(r.name)*2 - (r.competitor==='Direct'?20:0);
+const referrals = name => { const k=norm(name); return rows.filter(x=>x.recommended_by && norm(x.recommended_by)===k).length; };
+const norm = s => String(s||'').toLowerCase().replace(/\s+/g,' ').trim();
+const firstWordMatch = (a,b) => norm(a)===norm(b);
+const today = () => new Date().toISOString().slice(0,10);
+const inDays = n => { const d=new Date(); d.setDate(d.getDate()+n); return d.toISOString().slice(0,10); };
+const isOverdue = r => r.next_action_date && r.follow_up_stage!=='Done' && r.next_action_date < today();
+const isDueSoon = r => r.next_action_date && r.follow_up_stage!=='Done' && r.next_action_date <= inDays(7);
+const logsFor = name => logs.filter(l=>norm(l.guest)===norm(name)).sort((a,b)=>(b.date||'9999').localeCompare(a.date||'9999'));
+const lastContact = name => { const d=logsFor(name).filter(l=>l.date && l.outcome!=='Draft').map(l=>l.date).sort(); return d.length?d[d.length-1]:''; };
+const awaiting = l => l.direction!=='Incoming' && l.outcome==='Sent' && l.date && l.date <= inDays(-7);
+
+/* ---- Helpers ---- */
+const $ = s => document.querySelector(s);
+const h = s => String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const fmtDate = d => d ? new Date(d+'T00:00').toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'2-digit'}) : '';
+function pill(r){ const c=category(r); const col=(CAT[c.name]||CAT['To assess']).c;
+  if(c.name==='To assess') return '<span class="pill ghost">To assess</span>';
+  return `<span class="pill${c.auto?' auto':''}" style="background:${col}">${h(c.name)}</span>`; }
+function bar(v,max,col){ if(v==null) return '<span class="muted">-</span>';
+  return `<span class="bar"><i style="width:56px"><span style="width:${v/max*100}%;background:${col}"></span></i><span class="num">${v}</span></span>`; }
+const outPill = o => `<span class="out ${h((o||'').split(' ')[0])}">${h(o)}</span>`;
+function fillSelect(sel, vals, labels){ sel.innerHTML = vals.map((v,k)=>`<option value="${h(v)}">${h(labels?labels[k]:(v||'-'))}</option>`).join(''); }
+
+/* ---- Draft storage (this browser only) ---- */
+function saveDraft(){ try{ localStorage.setItem(DRAFT_KEY, JSON.stringify({at:new Date().toISOString(), guests:toCSV(rows,G_FIELDS), followups:toCSV(logs,F_FIELDS)})); }catch(e){} }
+function readDraft(){ try{ const d=JSON.parse(localStorage.getItem(DRAFT_KEY)||'null'); return d&&d.guests?d:null; }catch(e){ return null; } }
+function clearDraft(){ try{ localStorage.removeItem(DRAFT_KEY); }catch(e){} }
+function markDirty(){ saveDraft(); showBanner(new Date().toISOString()); }
+function showBanner(at){ $('#draftText').textContent=`Showing edits saved in this browser (${new Date(at).toLocaleString('en-GB',{dateStyle:'medium',timeStyle:'short'})}). Export both files and upload them to the repo so everyone sees them.`; $('#draftBanner').classList.add('show'); }
+
+/* ---- Routing ---- */
+function showView(v){
+  document.querySelectorAll('.view').forEach(x=>x.classList.toggle('active', x.id==='view-'+v));
+  document.querySelectorAll('.tab').forEach(t=>{ t.classList.toggle('active', t.dataset.view===v); t.setAttribute('aria-selected', t.dataset.view===v); });
+}
+function route(){ let h=''; try{ h=location.hash; }catch(e){} showView(h==='#followups' ? 'followups' : 'overview'); }
+document.querySelectorAll('.tab').forEach(t=>t.addEventListener('click',e=>{
+  e.preventDefault(); showView(t.dataset.view);
+  try{ history.replaceState(null,'','#'+t.dataset.view); }catch(err){}
+}));
+window.addEventListener('hashchange', route);
+
+/* ---- Render ---- */
+function render(){
+  $('#guestNames').innerHTML = rows.map(r=>`<option value="${h(r.name)}">`).join('');
+  renderKPIs(); renderMatrix(); renderTable(); renderFollowups();
+  const due = rows.filter(r=>r.status!=='Declined' && isDueSoon(r)).length;
+  const dc=$('#dueCount'); dc.hidden=!due; dc.textContent=due;
+}
+
+function renderKPIs(){
+  const active = rows.filter(r=>r.status!=='Declined');
+  const cnt = n => active.filter(r=>category(r).name===n).length;
+  const booked = active.filter(r=>['Agreed to come on','Date booked'].includes(r.status)).length;
+  const done = active.filter(r=>['Episode recorded','Published'].includes(r.status)).length;
+  const k = [
+    ['Guests', active.length, `${done} recorded · ${booked} booked/agreed`],
+    ['Connectors', cnt('Connector')+cnt('Both'), 'incl. Both'],
+    ['Direct opps', cnt('Direct opportunity')+cnt('Both'), 'incl. Both'],
+    ['To assess', cnt('To assess'), 'not scored yet'],
+    ['Top referrer', (()=>{const t=active.map(r=>[r.name,referrals(r.name)]).sort((a,b)=>b[1]-a[1])[0]; return t&&t[1]?t[1]:0;})(), (()=>{const t=active.map(r=>[r.name,referrals(r.name)]).sort((a,b)=>b[1]-a[1])[0]; return t&&t[1]?`intros from ${t[0].split(' ')[0]}`:'no referrals logged';})()],
+    ['Competitor flags', cnt('Competitor: review'), 'review before inviting', cnt('Competitor: review')?'alert':'']
+  ];
+  $('#kpis').innerHTML = k.map(([l,v,s,cls])=>`<div class="kpi ${cls||''}"><span class="label">${l}</span><b class="num">${v}</b><small>${h(s)}</small></div>`).join('');
+}
+
+function renderMatrix(){
+  const W=640,H=420,P={l:52,r:20,t:20,b:46}, iw=W-P.l-P.r, ih=H-P.t-P.b;
+  const x=v=>P.l+v/10*iw, y=v=>P.t+ih-v/10*ih;
+  let s=`<rect x="${P.l}" y="${P.t}" width="${iw}" height="${ih}" fill="#FAF8F0" rx="8"/>`;
+  s+=`<line x1="${x(5)}" y1="${P.t}" x2="${x(5)}" y2="${P.t+ih}" stroke="#D3CFC2" stroke-dasharray="4 4"/><line x1="${P.l}" y1="${y(5)}" x2="${P.l+iw}" y2="${y(5)}" stroke="#D3CFC2" stroke-dasharray="4 4"/>`;
+  const ql=(tx,ty,t,a)=>`<text x="${tx}" y="${ty}" font-size="11" font-weight="600" fill="#9A948C" letter-spacing="1" text-anchor="${a}">${t}</text>`;
+  s+=ql(x(10)-8,P.t+18,'AMPLIFY + PURSUE','end')+ql(P.l+8,P.t+18,'AUDIENCE BUILDERS','start')+ql(x(10)-8,P.t+ih-10,'PURSUE 1:1','end')+ql(P.l+8,P.t+ih-10,'LIGHT TOUCH','start');
+  s+=`<text x="${P.l+iw/2}" y="${H-10}" font-size="12" fill="#6B6560" text-anchor="middle">Business value (connector or opportunity) →</text>`;
+  s+=`<text transform="translate(16 ${P.t+ih/2}) rotate(-90)" font-size="12" fill="#6B6560" text-anchor="middle">Audience value (reach × activity) →</text>`;
+  for(let i=0;i<=10;i+=5){ s+=`<text x="${x(i)}" y="${P.t+ih+16}" font-size="11" fill="#9A948C" text-anchor="middle">${i}</text><text x="${P.l-8}" y="${y(i)+4}" font-size="11" fill="#9A948C" text-anchor="end">${i}</text>`; }
+  const pts=[], un=[];
+  rows.forEach((r,i)=>{ if(r.status==='Declined') return; const a=audienceScore(r), b=bizScore(r); if(a==null&&b==null) un.push(i); else pts.push({i,a:a??0,b:b??0,partial:a==null||b==null}); });
+  const seen={};
+  pts.forEach(p=>{ const key=p.a+'|'+p.b; const n=seen[key]=(seen[key]||0)+1; const off=(n-1)*12;
+    const r=rows[p.i], col=(CAT[category(r).name]||CAT['To assess']).c, cx=x(p.b)+off, cy=y(p.a);
+    s+=`<g style="cursor:pointer" data-i="${p.i}"><circle cx="${cx}" cy="${cy}" r="8" fill="${col}" ${p.partial?'fill-opacity=".35" stroke="'+col+'" stroke-width="2"':''}/><text x="${cx+12}" y="${cy+4}" font-size="12" font-weight="600" fill="#322E2E">${h(r.name.split(' ').slice(0,2).join(' '))}</text><title>${h(r.name)}: business ${p.b}, audience ${p.a}${p.partial?' (partly scored)':''}</title></g>`; });
+  const m=$('#matrix'); m.innerHTML=s;
+  m.querySelectorAll('g[data-i]').forEach(g=>g.addEventListener('click',()=>openEdit(+g.dataset.i)));
+  $('#legend').innerHTML = Object.entries(CAT).map(([k,v])=>`<div><span class="dot" style="background:${v.c}"></span><span><b>${k}</b><br><span class="muted">${v.d}</span></span></div>`).join('');
+  $('#unscored').innerHTML = un.length ? `<div class="label" style="margin:6px 0">Not plotted yet (${un.length})</div>`+un.map(i=>`<span class="chip" data-i="${i}">${h(rows[i].name.split(' ').slice(0,2).join(' '))}</span>`).join('') : '';
+  $('#unscored').querySelectorAll('[data-i]').forEach(c=>c.addEventListener('click',()=>openEdit(+c.dataset.i)));
+}
+
+function renderTable(){
+  const q=$('#q').value.toLowerCase(), fc=$('#fCat').value, fs=$('#fStatus').value, sb=$('#sortBy').value;
+  let list = rows.map((r,i)=>({r,i})).filter(({r})=>
+    (!q || G_FIELDS.some(f=>String(r[f]).toLowerCase().includes(q))) && (!fc || category(r).name===fc) && (!fs || r.status===fs));
+  list.sort((A,B)=>{ const a=A.r,b=B.r;
+    if(sb==='name') return a.name.localeCompare(b.name);
+    if(sb==='next') return (a.next_action_date||'9999').localeCompare(b.next_action_date||'9999');
+    if(sb==='pipeline') return STATUSES.indexOf(b.status)-STATUSES.indexOf(a.status) || priority(b)-priority(a);
+    return priority(b)-priority(a); });
+  $('#countLbl').textContent = `${list.length} of ${rows.length}`;
+  if(!rows.length){ $('#tbody').innerHTML=`<tr><td colspan="9" class="empty">No guests loaded. Use <b>Open CSV</b> or <b>+ Add guest</b>.</td></tr>`; return; }
+  $('#tbody').innerHTML = list.map(({r,i})=>{ const ref=referrals(r.name), lc=lastContact(r.name);
+    return `<tr class="row" data-i="${i}">
+    <td><div class="nm">${h(r.name)}</div><div class="co">${h([r.role,r.company].filter(Boolean).join(', '))}</div>${r.recommended_by?`<div class="co">via ${h(r.recommended_by)}</div>`:''}</td>
+    <td><span class="pill st">${h(r.status)}</span>${r.episode_date?`<div class="co">${fmtDate(r.episode_date)}</div>`:''}</td>
+    <td>${pill(r)}${r.competitor==='Direct'?'<div class="flag">Direct competitor</div>':r.competitor==='Adjacent'?'<div class="co">Adjacent</div>':''}${r.notion_tags?`<div>${r.notion_tags.split(/[;,]/).map(t=>t.trim()).filter(Boolean).map(t=>`<span class="chip">${h(t)}</span>`).join('')}</div>`:''}</td>
+    <td>${bar(audienceScore(r),10,'var(--c-aud)')}${r.followers?`<div class="co">${(+r.followers).toLocaleString('en-GB')} · ${h(r.posting||'activity?')}</div>`:''}</td>
+    <td>${bar(num(r.connector_score),5,'var(--c-conn)')}</td>
+    <td>${bar(num(r.opportunity_score),5,'var(--c-direct)')}</td>
+    <td>${ref?`<span class="chip green">${ref} intro${ref>1?'s':''}</span>`:'<span class="muted">-</span>'}</td>
+    <td>${lc?fmtDate(lc):'<span class="muted">-</span>'}</td>
+    <td>${r.follow_up_idea?h(r.follow_up_idea):'<span class="muted">Not decided</span>'}${r.next_action_date?`<div class="co ${isOverdue(r)?'overdue':''}">${fmtDate(r.next_action_date)}${isOverdue(r)?' · overdue':''}</div>`:''}</td></tr>`; }).join('')
+    || `<tr><td colspan="9" class="empty">No guests match these filters.</td></tr>`;
+  document.querySelectorAll('#tbody tr.row').forEach(tr=>tr.addEventListener('click',()=>openEdit(+tr.dataset.i)));
+}
+
+/* ---- Follow-ups view ---- */
+function renderFollowups(){
+  const sent = logs.filter(l=>l.outcome!=='Draft' && l.direction!=='Incoming');
+  const month = today().slice(0,7);
+  const after = rows.filter(r=>['Episode recorded','Published'].includes(r.status));
+  const noFu = after.filter(r=>!logsFor(r.name).some(l=>l.outcome!=='Draft') && r.follow_up_stage!=='Done').length;
+  const due = rows.filter(r=>r.status!=='Declined'&&isDueSoon(r)), over = due.filter(isOverdue);
+  const k = [
+    ['Sent this month', sent.filter(l=>(l.date||'').startsWith(month)).length, `${sent.length} sent in total`],
+    ['Awaiting reply', logs.filter(awaiting).length, 'sent 7+ days ago, no reply', logs.filter(awaiting).length?'alert':''],
+    ['Replies', logs.filter(l=>['Replied','Meeting booked'].includes(l.outcome)).length, 'replied or meeting booked'],
+    ['Meetings booked', logs.filter(l=>l.outcome==='Meeting booked').length, 'lunches, calls, meetings'],
+    ['Due in 7 days', due.length, over.length?`${over.length} overdue`:'next actions', over.length?'alert':''],
+    ['Recorded, no follow-up', noFu, 'after their episode', noFu?'alert':'']
+  ];
+  $('#fuKpis').innerHTML = k.map(([l,v,s,cls])=>`<div class="kpi ${cls||''}"><span class="label">${l}</span><b class="num">${v}</b><small>${h(s)}</small></div>`).join('');
+
+  const q=$('#fq').value.toLowerCase(), fs=$('#fuStatus').value, fst=$('#fuStage').value, show=$('#fuShow').value;
+  let list = rows.map((r,i)=>({r,i,L:logsFor(r.name)})).filter(({r,L})=>{
+    if(show==='active' && !L.length && !r.follow_up_idea && r.follow_up_stage==='Not started' && !r.next_action_date) return false;
+    if(show==='after' && !['Date booked','Episode recorded','Published'].includes(r.status)) return false;
+    if(fs && r.status!==fs) return false;
+    if(fst && r.follow_up_stage!==fst) return false;
+    if(q && !(r.name.toLowerCase().includes(q) || L.some(l=>(l.subject+' '+l.body).toLowerCase().includes(q)))) return false;
+    return true; });
+  list.sort((a,b)=>(a.r.next_action_date||'9999').localeCompare(b.r.next_action_date||'9999') || priority(b.r)-priority(a.r));
+  const open = new Set([...document.querySelectorAll('details.fu[open]')].map(d=>d.dataset.name));
+  $('#fuList').innerHTML = list.length ? list.map(({r,i,L})=>{
+    const lc=lastContact(r.name), last=L.find(l=>l.outcome!=='Draft');
+    return `<details class="fu" data-name="${h(r.name)}" ${open.has(r.name)?'open':''}>
+      <summary>
+        <span><span class="nm">${h(r.name)}</span><br><span class="co">${h(r.status)}${r.company?' · '+h(r.company):''}</span></span>
+        <span class="hide-sm">${pill(r)}</span>
+        <span class="hide-sm"><span class="label" style="font-size:10px">Last contact</span><br>${lc?fmtDate(lc):'<span class="muted">None yet</span>'}${last?' '+outPill(last.outcome):''}</span>
+        <span class="hide-sm"><span class="label" style="font-size:10px">${h(r.follow_up_stage)}</span><br>${r.next_action_date?`<span class="${isOverdue(r)?'overdue':''}">${fmtDate(r.next_action_date)}</span> `:''}${h(r.follow_up_idea)||'<span class="muted">No plan yet</span>'}</span>
+        <span class="caret">›</span>
+      </summary>
+      <div class="fu-body">
+        <div class="plan">
+          <div><b>Their interests</b>${h(r.their_interests)||'<span class="muted">Not captured</span>'}</div>
+          <div><b>What we can offer</b>${h(r.what_we_can_offer)||'<span class="muted">Not captured</span>'}</div>
+          <div><b>Owner</b>${h(r.follow_up_owner)||'<span class="muted">Unassigned</span>'}${r.email?`<br><a href="mailto:${h(r.email)}">${h(r.email)}</a>`:''}</div>
+        </div>
+        ${timeline(L)}
+        <div class="actions"><button class="btn small primary" data-log="${h(r.name)}">+ Log follow-up</button><button class="btn small" data-edit="${i}">Edit guest and plan</button></div>
+      </div></details>`; }).join('') : `<div class="card empty">No guests match. Switch the view to <b>All guests</b> or log a follow-up.</div>`;
+  $('#fuList').querySelectorAll('[data-log]').forEach(b=>b.addEventListener('click',()=>openLog(null,b.dataset.log)));
+  $('#fuList').querySelectorAll('[data-edit]').forEach(b=>b.addEventListener('click',()=>openEdit(+b.dataset.edit)));
+  bindTimeline($('#fuList'));
+
+  const all=[...logs].sort((a,b)=>(b.date||'9999').localeCompare(a.date||'9999'));
+  $('#logCount').textContent = `${all.length} entr${all.length===1?'y':'ies'}`;
+  $('#logBody').innerHTML = all.length ? all.map(l=>`<tr class="row" data-id="${h(l.id)}"><td>${l.date?fmtDate(l.date):'<span class="muted">Draft</span>'}</td><td class="nm">${h(l.guest)}</td><td>${h(l.channel)}${l.direction==='Incoming'?' <span class="co">(in)</span>':''}</td><td>${h(l.subject)||'<span class="muted">-</span>'}</td><td>${h(l.sent_by)}</td><td>${outPill(l.outcome)}</td><td>${h(l.next_step)}${l.next_date?`<div class="co">${fmtDate(l.next_date)}</div>`:''}</td></tr>`).join('')
+    : `<tr><td colspan="7" class="empty">No follow-ups logged yet. Use <b>+ Log follow-up</b>.</td></tr>`;
+  $('#logBody').querySelectorAll('tr.row').forEach(tr=>tr.addEventListener('click',()=>openLog(tr.dataset.id)));
+}
+function timeline(L){
+  if(!L.length) return '<p class="muted" style="margin:8px 0 12px">No follow-ups logged yet.</p>';
+  return `<ul class="timeline">${L.map(l=>`<li class="${h((l.outcome||'').split(' ')[0])}">
+    <div class="tl-head"><b>${l.date?fmtDate(l.date):'Not sent'}</b><span>${h(l.channel)}${l.direction==='Incoming'?' from them':''}</span>${outPill(l.outcome)}${l.sent_by?`<span class="co">by ${h(l.sent_by)}</span>`:''}</div>
+    ${l.subject?`<div class="nm" style="font-size:14px;margin-top:2px">${h(l.subject)}</div>`:''}
+    ${l.body?`<details><summary class="co" style="cursor:pointer">Show email</summary><div class="tl-body">${h(l.body)}</div></details>`:''}
+    ${l.next_step?`<div class="co">Next: ${h(l.next_step)}${l.next_date?' · '+fmtDate(l.next_date):''}</div>`:''}
+    <div class="tl-actions"><button class="btn small" type="button" data-logedit="${h(l.id)}">Edit</button>${l.outcome==='Draft'&&l.channel==='Email'?`<a class="btn small" href="${mailto(l)}">Open in email</a><button class="btn small" type="button" data-marksent="${h(l.id)}">Mark sent today</button>`:''}</div>
+  </li>`).join('')}</ul>`;
+}
+function mailto(l){ const g=rows.find(r=>norm(r.name)===norm(l.guest)); return `mailto:${encodeURIComponent(g&&g.email||'')}?subject=${encodeURIComponent(l.subject||'')}&body=${encodeURIComponent(l.body||'')}`; }
+function bindTimeline(root){
+  root.querySelectorAll('[data-logedit]').forEach(b=>b.addEventListener('click',e=>{e.preventDefault(); if($('#dlg').open) $('#dlg').close('cancel'); openLog(b.dataset.logedit);}));
+  root.querySelectorAll('[data-marksent]').forEach(b=>b.addEventListener('click',e=>{e.preventDefault(); const l=logs.find(x=>x.id===b.dataset.marksent); if(l){l.outcome='Sent'; l.date=today(); afterLogChange(l);} if($('#dlg').open) renderHistory(rows[editIdx]?.name); }));
+}
+
+/* ---- Guest dialog ---- */
+function setupForms(){
+  const f=$('#form');
+  ['status','posting','competitor','category','follow_up_stage'].forEach(k=>fillSelect(f.elements[k], OPTS[k], k==='category'?OPTS[k].map(x=>x||'Auto (from scores)'):null));
+  const lf=$('#logForm');
+  ['channel','direction','outcome'].forEach(k=>fillSelect(lf.elements[k], OPTS[k]));
+  fillSelect($('#fCat'), ['',...Object.keys(CAT)], ['All categories',...Object.keys(CAT)]);
+  fillSelect($('#fStatus'), ['',...STATUSES], ['All statuses',...STATUSES]);
+  fillSelect($('#fuStatus'), ['',...STATUSES], ['All statuses',...STATUSES]);
+  fillSelect($('#fuStage'), ['',...OPTS.follow_up_stage], ['Any follow-up stage',...OPTS.follow_up_stage]);
+}
+function renderHistory(name){
+  const L = name ? logsFor(name) : [];
+  $('#dlgHistory').querySelector('summary').textContent = `Follow-up history (${L.length})`;
+  $('#dlgHistoryBody').innerHTML = timeline(L) + (name?`<button class="btn small primary" type="button" id="dlgLogBtn">+ Log follow-up</button>`:'');
+  bindTimeline($('#dlgHistoryBody'));
+  const b=$('#dlgLogBtn'); if(b) b.onclick=()=>{ $('#dlg').close('cancel'); openLog(null,name); };
+}
+function openEdit(i){
+  editIdx=i; const r = i>-1 ? rows[i] : {status:'Want to invite',follow_up_stage:'Not started'};
+  const f=$('#form'); G_FIELDS.forEach(k=>{ if(f.elements[k]) f.elements[k].value = r[k]||''; });
+  $('#dlgTitle').textContent = i>-1 ? r.name : 'New guest';
+  $('#delBtn').style.visibility = i>-1 ? 'visible' : 'hidden';
+  renderHistory(i>-1 ? r.name : null);
+  $('#dlg').returnValue=''; $('#dlg').showModal();
+}
+$('#dlg').addEventListener('close',()=>{
+  const v=$('#dlg').returnValue, f=$('#form');
+  if(v==='save'){ const o={}; G_FIELDS.forEach(k=>o[k]=f.elements[k]?f.elements[k].value.trim():''); if(!o.name) return;
+    if(editIdx>-1){ const old=rows[editIdx].name; if(norm(old)!==norm(o.name)){ logs.forEach(l=>{ if(norm(l.guest)===norm(old)) l.guest=o.name; }); rows.forEach(x=>{ if(norm(x.recommended_by)===norm(old)) x.recommended_by=o.name; }); } rows[editIdx]=o; }
+    else rows.push(o);
+    markDirty(); render(); }
+  if(v==='delete' && editIdx>-1 && window.confirm(`Delete ${rows[editIdx].name}? Their follow-up log is kept. Undo with Discard edits until you export.`)){ rows.splice(editIdx,1); markDirty(); render(); }
+});
+
+/* ---- Follow-up dialog ---- */
+function openLog(id, guestName){
+  logEditId = id;
+  const l = id ? logs.find(x=>x.id===id) : {guest:guestName||'', date:today(), channel:'Email', direction:'Outgoing', outcome:'Sent'};
+  const lf=$('#logForm');
+  fillSelect(lf.elements.guest, ['',...rows.map(r=>r.name).sort((a,b)=>a.localeCompare(b))], ['Choose guest',...rows.map(r=>r.name).sort((a,b)=>a.localeCompare(b))]);
+  F_FIELDS.forEach(k=>{ if(lf.elements[k]) lf.elements[k].value = l[k]||''; });
+  if(l.guest && !rows.some(r=>r.name===l.guest)){ lf.elements.guest.insertAdjacentHTML('beforeend',`<option>${h(l.guest)}</option>`); lf.elements.guest.value=l.guest; }
+  $('#logTitle').textContent = id ? 'Edit follow-up' : 'Log follow-up';
+  $('#logDel').style.visibility = id ? 'visible' : 'hidden';
+  $('#logDlg').returnValue=''; $('#logDlg').showModal();
+}
+$('#logDlg').addEventListener('close',()=>{
+  const v=$('#logDlg').returnValue, lf=$('#logForm');
+  if(v==='save'){ const o={}; F_FIELDS.forEach(k=>o[k]=lf.elements[k]?lf.elements[k].value.trim():''); if(!o.guest) return;
+    if(o.outcome!=='Draft' && !o.date) o.date=today();
+    if(logEditId){ o.id=logEditId; logs[logs.findIndex(x=>x.id===logEditId)]=o; } else { o.id='f'+Date.now(); logs.push(o); }
+    afterLogChange(o); }
+  if(v==='delete' && logEditId && window.confirm('Delete this follow-up entry?')){ logs=logs.filter(x=>x.id!==logEditId); markDirty(); render(); }
+});
+function afterLogChange(l){
+  const g=rows.find(r=>norm(r.name)===norm(l.guest));
+  if(g){
+    if(l.next_date) g.next_action_date=l.next_date;
+    if(l.outcome!=='Draft' && g.follow_up_stage!=='Done' && ['Not started','Planned'].includes(g.follow_up_stage)) g.follow_up_stage='In progress';
+  }
+  markDirty(); render();
+}
+
+/* ---- Load / export ---- */
+function download(name, text){ const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob(['﻿'+text],{type:'text/csv;charset=utf-8'})); a.download=name; a.click(); setTimeout(()=>URL.revokeObjectURL(a.href),1500); }
+function exportFiles(which){
+  if(which!=='followups') download('guests.csv', toCSV(rows,G_FIELDS));
+  if(which!=='guests') setTimeout(()=>download('followups.csv', toCSV(logs,F_FIELDS)), which==='both'?400:0);
+  $('#exportMenu').classList.remove('open');
+}
+async function fetchText(p){ try{ const r=await fetch(p+'?v='+Date.now()); return r.ok?await r.text():null; }catch(e){ return null; } }
+async function load(){
+  const g=CONFIG.github; $('#ghBtn').href=`https://github.com/${g.owner}/${g.repo}/tree/${g.branch}/${g.folder}`;
+  const d=readDraft();
+  if(d){ rows=loadGuests(d.guests); logs=loadLogs(d.followups||''); showBanner(d.at); $('#srcLbl').textContent='edits saved in this browser'; }
+  else {
+    const [gt, ft] = await Promise.all([fetchText(CONFIG.guestsCsv), fetchText(CONFIG.followupsCsv)]);
+    rows = gt?loadGuests(gt):[]; logs = ft?loadLogs(ft):[];
+    $('#srcLbl').textContent = gt ? `${CONFIG.guestsCsv} + ${CONFIG.followupsCsv}` : 'nothing loaded (use Open CSV)';
+    loadFailed = !gt;
+  }
+  render();
+  if(loadFailed && !rows.length){
+    const local = location.protocol==='file:' || location.protocol==='about:' || location.protocol==='blob:';
+    $('#tbody').innerHTML = `<tr><td colspan="9" class="empty"><b>guests.csv didn't load.</b><br>${local
+      ? 'This page was opened from your computer, and browsers block it from reading files next to it.'
+      : 'It was not found next to this page. Check guests.csv is uploaded to the same folder on GitHub.'}<br>
+      Click <b>Open CSV</b> and select <b>guests.csv</b> and <b>followups.csv</b> together.<br><br><button class="btn primary" type="button" onclick="document.getElementById('fileIn').click()">Open CSV</button></td></tr>`;
+  }
+}
+$('#addBtn').onclick=()=>openEdit(-1);
+$('#logBtn').onclick=()=>openLog(null,'');
+$('#exportBtn').onclick=e=>{ e.stopPropagation(); $('#exportMenu').classList.toggle('open'); };
+document.addEventListener('click',()=>$('#exportMenu').classList.remove('open'));
+$('#exportMenu').querySelectorAll('button').forEach(b=>b.addEventListener('click',()=>exportFiles(b.dataset.x)));
+$('#bannerExport').onclick=()=>exportFiles('both');
+$('#openBtn').onclick=()=>$('#fileIn').click();
+$('#fileIn').onchange=async e=>{
+  const names=[];
+  for(const file of e.target.files){ const t=await file.text(); const head=parseRaw(t)[0]?.map(x=>x.trim().toLowerCase())||[];
+    if(head.includes('channel')||head.includes('outcome')){ logs=loadLogs(t); names.push(file.name); }
+    else if(head.includes('name')){ rows=loadGuests(t); names.push(file.name); } }
+  if(names.length){ $('#srcLbl').textContent=names.join(' + '); markDirty(); render(); }
+  e.target.value='';
+};
+$('#discardBtn').onclick=()=>{ clearDraft(); $('#draftBanner').classList.remove('show'); load(); };
+['#q','#fCat','#fStatus','#sortBy'].forEach(s=>$(s).addEventListener('input',renderTable));
+['#fq','#fuStatus','#fuStage','#fuShow'].forEach(s=>$(s).addEventListener('input',renderFollowups));
+setupForms(); route(); load();
+</script>
+</body>
+</html>
